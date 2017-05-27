@@ -1,4 +1,4 @@
-package hu.bets.points.model;
+package model;
 
 public class Result {
 

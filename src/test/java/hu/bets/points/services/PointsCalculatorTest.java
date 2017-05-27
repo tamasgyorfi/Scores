@@ -1,6 +1,6 @@
 package hu.bets.points.services;
 
-import hu.bets.points.model.Result;
+import model.Result;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -106,5 +106,4 @@ public class PointsCalculatorTest {
 
         assertEquals(2, sut.valueTip(tip, result));
     }
-
 }

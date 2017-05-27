@@ -1,22 +1,28 @@
 package hu.bets.points.services;
 
-import hu.bets.points.model.Result;
+import model.Result;
 
 public class PointsCalculator {
 
+    private static int PERFECT_GUESS_POINTS = 10;
+    private static int ONE_TEAM_SCORE_GUESSED = 2;
+    private static int OUTCOME_GUESSED = 5;
+
     public int valueTip(Result tip, Result result) {
         if (tip.equals(result)) {
-            return 10;
-        } else if (outcomeGuessed(tip, result)) {
-            if (oneTeamsGoalsGuessed(tip, result)) {
-                return 7;
-            }
-            return 5;
-        } else if (oneTeamsGoalsGuessed(tip, result)) {
-            return 2;
+            return PERFECT_GUESS_POINTS;
         }
 
-        return 0;
+        int points = 0;
+
+        if (outcomeGuessed(tip, result)) {
+            points += OUTCOME_GUESSED;
+        }
+        if (oneTeamsGoalsGuessed(tip, result)) {
+            points += ONE_TEAM_SCORE_GUESSED;
+        }
+
+        return points;
     }
 
     private boolean oneTeamsGoalsGuessed(Result tip, Result result) {
