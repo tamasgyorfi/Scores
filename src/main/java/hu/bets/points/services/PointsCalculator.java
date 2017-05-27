@@ -4,9 +4,9 @@ import model.Result;
 
 public class PointsCalculator {
 
-    private static int PERFECT_GUESS_POINTS = 10;
-    private static int ONE_TEAM_SCORE_GUESSED = 2;
-    private static int OUTCOME_GUESSED = 5;
+    private static final int PERFECT_GUESS_POINTS = 10;
+    private static final int OUTCOME_GUESSED_POINTS = 5;
+    private static final int ONE_TEAM_SCORE_GUESSED_POINTS = 2;
 
     public int valueTip(Result tip, Result result) {
         if (tip.equals(result)) {
@@ -16,10 +16,10 @@ public class PointsCalculator {
         int points = 0;
 
         if (outcomeGuessed(tip, result)) {
-            points += OUTCOME_GUESSED;
+            points += OUTCOME_GUESSED_POINTS;
         }
         if (oneTeamsGoalsGuessed(tip, result)) {
-            points += ONE_TEAM_SCORE_GUESSED;
+            points += ONE_TEAM_SCORE_GUESSED_POINTS;
         }
 
         return points;
