@@ -9,6 +9,13 @@
     <packaging>pom</packaging>
     <version>0.0.1-SNAPSHOT</version>
 
+    <scm>
+        <url>https://github.com/tamasgyorfi/Bets.git</url>
+        <connection>scm:git:git@github.com:tamasgyorfi/Bets.git</connection>
+        <developerConnection>scm:git:git@github.com:tamasgyorfi/Bets.git</developerConnection>
+        <tag>HEAD</tag>
+    </scm>
+
     <properties>
         <spring.version>4.3.7.RELEASE</spring.version>
         <glassfish.version>2.25.1</glassfish.version>
@@ -187,4 +194,23 @@
             </plugin>
         </plugins>
     </build>
+
+    <distributionManagement>
+        <repository>
+            <id>myMavenRepo.write</id>
+            <url>${myMavenRepo.write.url}</url>
+        </repository>
+        <snapshotRepository>
+            <id>myMavenRepo.write</id>
+            <url>${myMavenRepo.write.url}</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <repositories>
+        <repository>
+            <id>myMavenRepo.read</id>
+            <url>${myMavenRepo.read.url}</url>
+        </repository>
+    </repositories>
+
 </project>
