@@ -1,4 +1,4 @@
-package model;
+package hu.bets.model;
 
 public class Result {
 

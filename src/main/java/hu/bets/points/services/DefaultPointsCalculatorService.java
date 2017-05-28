@@ -1,8 +1,8 @@
 package hu.bets.points.services;
 
-import model.Result;
+import hu.bets.model.Result;
 
-public class PointsCalculator {
+public class DefaultPointsCalculatorService implements PointsCalculatorService {
 
     private static final int PERFECT_GUESS_POINTS = 10;
     private static final int OUTCOME_GUESSED_POINTS = 5;

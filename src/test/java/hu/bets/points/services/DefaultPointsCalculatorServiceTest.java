@@ -1,13 +1,13 @@
 package hu.bets.points.services;
 
-import model.Result;
+import hu.bets.model.Result;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
 
-public class PointsCalculatorTest {
+public class DefaultPointsCalculatorServiceTest {
 
-    private PointsCalculator sut = new PointsCalculator();
+    private DefaultPointsCalculatorService sut = new DefaultPointsCalculatorService();
 
     @Test
     public void perfectTipShouldResultInTenPointsHomeWins() {
