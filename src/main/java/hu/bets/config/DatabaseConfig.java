@@ -12,8 +12,8 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class DatabaseConfig {
 
-    private static final String DATABASE_NAME = "";
-    private static final String COLLECTION_NAME = "";
+    private static final String DATABASE_NAME = "heroku_d2039chx";
+    private static final String COLLECTION_NAME = "Scores";
     private static final String DB_URI_KEY = "MONGODB_URI";
 
     @Bean

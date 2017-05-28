@@ -7,8 +7,6 @@ import org.apache.log4j.Logger;
 import java.io.IOException;
 import java.util.List;
 import java.util.concurrent.CompletionService;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.Future;
 
 public class MessageSender {
 
@@ -17,24 +15,14 @@ public class MessageSender {
 
     private volatile boolean shouldContinue = true;
 
-    private CompletionService<List<String>> completionService;
     private Channel channel;
 
-    public MessageSender(CompletionService<List<String>> completionService, Channel channel) {
-        this.completionService = completionService;
+    public MessageSender(Channel channel) {
         this.channel = channel;
     }
 
     private void run() {
         while (shouldContinue) {
-            Future<List<String>> result = completionService.poll();
-            try {
-                if (result != null) {
-                    send(result.get());
-                }
-            } catch (InterruptedException | ExecutionException e) {
-                LOGGER.error("Unable to send User Bets.", e);
-            }
         }
     }
 

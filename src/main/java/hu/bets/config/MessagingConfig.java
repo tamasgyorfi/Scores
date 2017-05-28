@@ -73,7 +73,7 @@ public class MessagingConfig {
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
-    public MessageSender betAggregateResultSender(CompletionService<List<String>> completionService, Channel channel) {
-        return new MessageSender(completionService, channel);
+    public MessageSender betAggregateResultSender(Channel channel) {
+        return new MessageSender(channel);
     }
 }
