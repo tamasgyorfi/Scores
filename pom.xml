@@ -8,9 +8,6 @@
     <artifactId>football-scores</artifactId>
     <packaging>pom</packaging>
     <version>0.0.1-SNAPSHOT</version>
-    <modules>
-        <module>../common-infrastructure</module>
-    </modules>
 
     <properties>
         <spring.version>4.3.7.RELEASE</spring.version>
