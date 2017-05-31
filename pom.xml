@@ -6,20 +6,18 @@
 
     <groupId>hu.bets</groupId>
     <artifactId>football-scores</artifactId>
-    <packaging>pom</packaging>
+    <packaging>jar</packaging>
     <version>0.0.1-SNAPSHOT</version>
 
     <scm>
-        <url>https://github.com/tamasgyorfi/Bets.git</url>
-        <connection>scm:git:git@github.com:tamasgyorfi/Bets.git</connection>
-        <developerConnection>scm:git:git@github.com:tamasgyorfi/Bets.git</developerConnection>
+        <url>https://github.com/tamasgyorfi/Scores.git</url>
+        <connection>scm:git:git@github.com:tamasgyorfi/Scores.git</connection>
+        <developerConnection>scm:git:git@github.com:tamasgyorfi/Scores.git</developerConnection>
         <tag>HEAD</tag>
     </scm>
 
     <properties>
         <spring.version>4.3.7.RELEASE</spring.version>
-        <glassfish.version>2.25.1</glassfish.version>
-        <jetty.version>9.4.3.v20170317</jetty.version>
     </properties>
 
     <dependencies>
@@ -27,48 +25,6 @@
             <groupId>org.springframework</groupId>
             <artifactId>spring-core</artifactId>
             <version>${spring.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-beans</artifactId>
-            <version>${spring.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.springframework</groupId>
-            <artifactId>spring-context</artifactId>
-            <version>${spring.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-servlet</artifactId>
-            <version>${jetty.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.eclipse.jetty</groupId>
-            <artifactId>jetty-util</artifactId>
-            <version>${jetty.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.glassfish.jersey.containers</groupId>
-            <artifactId>jersey-container-servlet-core</artifactId>
-            <version>${glassfish.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.glassfish.jersey.media</groupId>
-            <artifactId>jersey-media-json-jackson</artifactId>
-            <version>${glassfish.version}</version>
-        </dependency>
-
-        <dependency>
-            <groupId>org.glassfish.jersey.core</groupId>
-            <artifactId>jersey-server</artifactId>
-            <version>${glassfish.version}</version>
         </dependency>
 
         <dependency>
@@ -107,6 +63,12 @@
             <version>21.0</version>
         </dependency>
 
+        <dependency>
+            <groupId>hu.bets</groupId>
+            <artifactId>common-infrastructure</artifactId>
+            <version>1.0.3</version>
+        </dependency>
+
         <!-- TESTING -->
 
         <dependency>
@@ -134,11 +96,13 @@
             <groupId>org.apache.qpid</groupId>
             <artifactId>qpid-broker</artifactId>
             <version>6.0.2</version>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>
 
     <build>
+        <finalName>football-scores</finalName>
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -149,6 +113,7 @@
                     <target>1.8</target>
                 </configuration>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-dependency-plugin</artifactId>
@@ -163,6 +128,7 @@
                     </execution>
                 </executions>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-jar-plugin</artifactId>
@@ -171,6 +137,7 @@
                     <finalName>football-scores</finalName>
                 </configuration>
             </plugin>
+
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-assembly-plugin</artifactId>
@@ -194,23 +161,5 @@
             </plugin>
         </plugins>
     </build>
-
-    <distributionManagement>
-        <repository>
-            <id>myMavenRepo.write</id>
-            <url>${myMavenRepo.write.url}</url>
-        </repository>
-        <snapshotRepository>
-            <id>myMavenRepo.write</id>
-            <url>${myMavenRepo.write.url}</url>
-        </snapshotRepository>
-    </distributionManagement>
-
-    <repositories>
-        <repository>
-            <id>myMavenRepo.read</id>
-            <url>${myMavenRepo.read.url}</url>
-        </repository>
-    </repositories>
 
 </project>

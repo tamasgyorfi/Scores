@@ -2,12 +2,15 @@ package hu.bets.model;
 
 public class Result {
 
+    private final String competitionId;
+
     private final String homeTeamId;
     private final String awayTeamId;
     private final int homeTeamGoals;
     private final int awayTeamGoals;
 
-    public Result(String homeTeamId, String awayTeamId, int homeTeamGoals, int awayTeamGoals) {
+    public Result(String competitionId, String homeTeamId, String awayTeamId, int homeTeamGoals, int awayTeamGoals) {
+        this.competitionId = competitionId;
         this.homeTeamId = homeTeamId;
         this.awayTeamId = awayTeamId;
         this.homeTeamGoals = homeTeamGoals;
@@ -30,6 +33,10 @@ public class Result {
         return awayTeamGoals;
     }
 
+    public String getCompetitionId() {
+        return competitionId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -39,16 +46,30 @@ public class Result {
 
         if (homeTeamGoals != result.homeTeamGoals) return false;
         if (awayTeamGoals != result.awayTeamGoals) return false;
+        if (competitionId != null ? !competitionId.equals(result.competitionId) : result.competitionId != null)
+            return false;
         if (homeTeamId != null ? !homeTeamId.equals(result.homeTeamId) : result.homeTeamId != null) return false;
         return awayTeamId != null ? awayTeamId.equals(result.awayTeamId) : result.awayTeamId == null;
     }
 
     @Override
     public int hashCode() {
-        int result = homeTeamId != null ? homeTeamId.hashCode() : 0;
+        int result = competitionId != null ? competitionId.hashCode() : 0;
+        result = 31 * result + (homeTeamId != null ? homeTeamId.hashCode() : 0);
         result = 31 * result + (awayTeamId != null ? awayTeamId.hashCode() : 0);
         result = 31 * result + homeTeamGoals;
         result = 31 * result + awayTeamGoals;
         return result;
+    }
+
+    @Override
+    public String toString() {
+        return "Result{" +
+                "competitionId='" + competitionId + '\'' +
+                ", homeTeamId='" + homeTeamId + '\'' +
+                ", awayTeamId='" + awayTeamId + '\'' +
+                ", homeTeamGoals=" + homeTeamGoals +
+                ", awayTeamGoals=" + awayTeamGoals +
+                '}';
     }
 }

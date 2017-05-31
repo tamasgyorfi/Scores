@@ -1,29 +1,20 @@
 package hu.bets.config;
 
-import com.mongodb.MongoClient;
-import com.mongodb.MongoClientURI;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
-import hu.bets.utils.EnvironmentVarResolver;
-import org.bson.Document;
+import hu.bets.common.config.CommonMongoConfig;
+import hu.bets.common.config.model.MongoDetails;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 
 @Configuration
+@Import(CommonMongoConfig.class)
 public class DatabaseConfig {
 
     private static final String DATABASE_NAME = "heroku_d2039chx";
     private static final String COLLECTION_NAME = "Scores";
-    private static final String DB_URI_KEY = "MONGODB_URI";
 
     @Bean
-    public static MongoCollection<Document> getMongoClient() {
-        String dbUri = EnvironmentVarResolver.getEnvVar(DB_URI_KEY);
-
-        MongoClientURI clientURI = new MongoClientURI(dbUri);
-        MongoClient client = new MongoClient(clientURI);
-
-        MongoDatabase database = client.getDatabase(DATABASE_NAME);
-        return database.getCollection(COLLECTION_NAME);
+    public MongoDetails mongoDetails() {
+        return new MongoDetails(DATABASE_NAME, COLLECTION_NAME);
     }
 }

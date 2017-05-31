@@ -1,4 +1,4 @@
-package hu.bets.points.services;
+package hu.bets.points.services.points;
 
 import hu.bets.model.Result;
 

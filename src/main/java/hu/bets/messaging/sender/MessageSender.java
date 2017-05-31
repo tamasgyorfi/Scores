@@ -34,21 +34,4 @@ public class MessageSender {
     public void stop() {
         this.shouldContinue = false;
     }
-
-    private void send(List<String> payloadBatch) {
-        for (String payload : payloadBatch) {
-            sendBatch(payload);
-        }
-    }
-
-    private void sendBatch(String payload) {
-        for (int i = 0; i < NR_OF_RETRIES; i++) {
-            try {
-                channel.basicPublish(MessagingConstants.EXCHANGE_NAME, MessagingConstants.AGGREGATE_RESPONSE_ROUTING_KEY, null, payload.getBytes());
-                break;
-            } catch (IOException e) {
-                LOGGER.error("Unable to send batch: " + payload, e);
-            }
-        }
-    }
 }
