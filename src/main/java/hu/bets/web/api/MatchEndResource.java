@@ -1,13 +1,13 @@
 package hu.bets.web.api;
 
 import hu.bets.points.services.ResultHandlerService;
+import hu.bets.web.model.ResultResponse;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
 
 @Component
 @Path("/scores/football/v1")
@@ -25,17 +25,17 @@ public class MatchEndResource {
     }
 
     @POST
-    @Path("results")
+    @Path("results/{matchId}")
     @Consumes(MediaType.APPLICATION_JSON)
-    public Response postResult(String resultRequest) {
+    @Produces(MediaType.APPLICATION_JSON)
+    public ResultResponse postResult(@PathParam("matchId") String matchId, String resultRequest) {
 
-        String matchId = "1";
         LOGGER.info("Post request invoked. " + matchId +": " +resultRequest);
         try {
-            resultHandlerService.saveResult(matchId, resultRequest);
-            return Response.accepted().build();
+            resultHandlerService.saveMatchResult(matchId, resultRequest);
+            return ResultResponse.success(200, "Match results saved.");
         } catch (Exception e) {
-            return Response.serverError().entity(e.getMessage()).build();
+            return ResultResponse.error(500, e.getMessage());
         }
     }
 }

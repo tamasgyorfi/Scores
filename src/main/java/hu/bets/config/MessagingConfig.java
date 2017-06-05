@@ -5,7 +5,6 @@ import com.rabbitmq.client.Consumer;
 import hu.bets.common.config.CommonMessagingConfig;
 import hu.bets.common.messaging.DefaultMessageListener;
 import hu.bets.common.messaging.MessageListener;
-import hu.bets.messaging.MessagingConstants;
 import hu.bets.messaging.receiver.MessageConsumer;
 import hu.bets.messaging.sender.MessageSender;
 import org.apache.log4j.Logger;
@@ -13,9 +12,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 
-import static hu.bets.messaging.MessagingConstants.AGGREGATE_REQUEST_QUEUE_NAME;
-import static hu.bets.messaging.MessagingConstants.AGGREGATE_REQUEST_ROUTING_KEY;
-import static hu.bets.messaging.MessagingConstants.EXCHANGE_NAME;
+import static hu.bets.messaging.MessagingConstants.*;
 
 @Configuration
 @Import(CommonMessagingConfig.class)

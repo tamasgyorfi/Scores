@@ -11,7 +11,7 @@ public class MatchResult {
 
     public MatchResult(String matchId, Result result) {
         this.matchId = matchId;
-        this.matchDate = LocalDate.now(ZoneId.of("UK"));
+        this.matchDate = LocalDate.now(ZoneId.of("Europe/London"));
         this.result = result;
     }
 

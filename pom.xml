@@ -66,7 +66,7 @@
         <dependency>
             <groupId>hu.bets</groupId>
             <artifactId>common-infrastructure</artifactId>
-            <version>1.0.3</version>
+            <version>1.0.4</version>
         </dependency>
 
         <!-- TESTING -->
@@ -75,6 +75,13 @@
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
             <version>4.12</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>org.mockito</groupId>
+            <artifactId>mockito-all</artifactId>
+            <version>2.0.2-beta</version>
             <scope>test</scope>
         </dependency>
 
@@ -97,6 +104,12 @@
             <artifactId>qpid-broker</artifactId>
             <version>6.0.2</version>
             <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>hu.bets</groupId>
+            <artifactId>football-integration-test</artifactId>
+            <version>0.0.4</version>
         </dependency>
 
     </dependencies>

@@ -1,8 +1,8 @@
 {
-  "$schema": "http://json-schema.org/draft-04/schema#",
+  "$schema": "http://json-schema.org/schema#",
   "additionalProperties": true,
   "definitions": {},
-  "id": "matchResult request schema",
+  "id": "matchResult-request-schema",
   "properties": {
     "awayTeamGoals": {
       "id": "/properties/awayTeamGoals",

@@ -9,6 +9,15 @@ public class Result {
     private final int homeTeamGoals;
     private final int awayTeamGoals;
 
+    // Needed for JSON deserialization.
+    private Result() {
+        awayTeamGoals = -1;
+        homeTeamGoals = -1;
+        awayTeamId = null;
+        homeTeamId = null;
+        competitionId = null;
+    }
+
     public Result(String competitionId, String homeTeamId, String awayTeamId, int homeTeamGoals, int awayTeamGoals) {
         this.competitionId = competitionId;
         this.homeTeamId = homeTeamId;

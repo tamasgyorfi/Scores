@@ -1,12 +1,7 @@
 package hu.bets.messaging.sender;
 
 import com.rabbitmq.client.Channel;
-import hu.bets.messaging.MessagingConstants;
 import org.apache.log4j.Logger;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.concurrent.CompletionService;
 
 public class MessageSender {
 
