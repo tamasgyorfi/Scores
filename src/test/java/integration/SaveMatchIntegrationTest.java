@@ -13,6 +13,8 @@ import org.apache.http.util.EntityUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.util.concurrent.TimeUnit;
+
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
 
@@ -32,6 +34,8 @@ public class SaveMatchIntegrationTest {
                 FakeDatabaseConfig.class,
                 MessagingConfig.class,
                 WebConfig.class);
+        
+        TimeUnit.SECONDS.sleep(2);
     }
 
     @Test
