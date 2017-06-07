@@ -3,8 +3,8 @@ package hu.bets.config;
 import com.mongodb.client.MongoCollection;
 import hu.bets.common.config.model.CommonConfig;
 import hu.bets.common.util.SchemaValidator;
-import hu.bets.points.data.MatchDAO;
-import hu.bets.points.data.MongoBasedMatchDAO;
+import hu.bets.points.dbaccess.MatchDAO;
+import hu.bets.points.dbaccess.MongoBasedMatchDAO;
 import hu.bets.points.services.DefaultResultHandlerService;
 import hu.bets.points.services.ResultHandlerService;
 import hu.bets.points.services.conversion.DefaultModelConverterService;
@@ -29,7 +29,8 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public MatchDAO matchDAO(@Qualifier("ResultsCollection") MongoCollection matchResultCollection) {
-        return new MongoBasedMatchDAO(matchResultCollection);
+    public MatchDAO matchDAO(@Qualifier("ResultsCollection") MongoCollection matchResultCollection,
+                             @Qualifier("ErrorCollection") MongoCollection errorCollection) {
+        return new MongoBasedMatchDAO(matchResultCollection, errorCollection);
     }
 }

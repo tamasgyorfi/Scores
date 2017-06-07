@@ -1,8 +1,8 @@
 package hu.bets.points.services;
 
 import hu.bets.model.MatchResult;
-import hu.bets.points.data.DatabaseException;
-import hu.bets.points.data.MatchDAO;
+import hu.bets.points.dbaccess.DatabaseException;
+import hu.bets.points.dbaccess.MatchDAO;
 import hu.bets.points.services.conversion.IllegalJsonException;
 import hu.bets.points.services.conversion.ModelConverterService;
 import org.apache.log4j.Logger;

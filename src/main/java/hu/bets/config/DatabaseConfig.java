@@ -17,6 +17,7 @@ public class DatabaseConfig {
 
     private static final String DATABASE_NAME = "heroku_d2039chx";
     private static final String SCORES_COLLECTION_NAME = "Scores";
+    private static final String ERROR_COLLECTION_NAME = "Error";
     private static final String RESULTS_COLLECTION_NAME = "Results";
 
     @Bean
@@ -35,6 +36,12 @@ public class DatabaseConfig {
     @Qualifier("ResultsCollection")
     public MongoCollection<Document> resultsCollection(MongoDatabase mongoDatabase) {
         return mongoDatabase.getCollection(RESULTS_COLLECTION_NAME);
+    }
+
+    @Bean
+    @Qualifier("ErrorCollection")
+    public MongoCollection<Document> errorCollection(MongoDatabase mongoDatabase) {
+        return mongoDatabase.getCollection(ERROR_COLLECTION_NAME);
     }
 
 }

@@ -1,4 +1,4 @@
-package hu.bets.points.data;
+package hu.bets.points.dbaccess;
 
 public class DatabaseException extends RuntimeException {
 

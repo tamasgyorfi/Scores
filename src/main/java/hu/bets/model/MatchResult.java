@@ -1,17 +1,28 @@
 package hu.bets.model;
 
-import java.time.LocalDate;
+import hu.bets.points.dbaccess.DateUtil;
+
+import java.time.LocalDateTime;
 import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 
 public class MatchResult {
 
+    private static final ZoneId ZONE_ID = ZoneId.of("Europe/London");
+
     private final String matchId;
-    private final LocalDate matchDate;
+    private final String matchDate;
     private final Result result;
+
+    public MatchResult(String matchId, Result result, LocalDateTime matchDate) {
+        this.matchId = matchId;
+        this.matchDate = DateUtil.format(matchDate);
+        this.result = result;
+    }
 
     public MatchResult(String matchId, Result result) {
         this.matchId = matchId;
-        this.matchDate = LocalDate.now(ZoneId.of("Europe/London"));
+        this.matchDate = DateUtil.format(LocalDateTime.now(ZONE_ID));
         this.result = result;
     }
 
@@ -19,7 +30,7 @@ public class MatchResult {
         return matchId;
     }
 
-    public LocalDate getMatchDate() {
+    public String getMatchDate() {
         return matchDate;
     }
 

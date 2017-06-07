@@ -1,7 +1,7 @@
 package hu.bets.points.services;
 
 import hu.bets.model.MatchResult;
-import hu.bets.points.data.MatchDAO;
+import hu.bets.points.dbaccess.MatchDAO;
 import hu.bets.points.services.conversion.ModelConverterService;
 import org.junit.Before;
 import org.junit.Test;

@@ -88,7 +88,7 @@
         <dependency>
             <groupId>com.github.fakemongo</groupId>
             <artifactId>fongo</artifactId>
-            <version>2.0.12</version>
+            <version>2.1.0</version>
             <scope>test</scope>
         </dependency>
 
@@ -110,6 +110,7 @@
             <groupId>hu.bets</groupId>
             <artifactId>football-integration-test</artifactId>
             <version>0.0.4</version>
+            <scope>test</scope>
         </dependency>
 
     </dependencies>
