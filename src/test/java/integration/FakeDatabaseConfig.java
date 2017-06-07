@@ -14,6 +14,7 @@ public class FakeDatabaseConfig {
 
         private static Fongo fongo = new Fongo("database-1");
         private static MongoCollection matchResultCollection = fongo.getDatabase("aaa").getCollection("matchResult");
+        private static MongoCollection errorCollection = fongo.getDatabase("aaa").getCollection("error");
         private static MongoCollection scoresCollection = fongo.getDatabase("aaa").getCollection("Scores");
 
         public static MongoCollection getMatchResultCollection() {
@@ -26,4 +27,11 @@ public class FakeDatabaseConfig {
     public MongoCollection<Document> getResultsCollection() {
         return FongoResultsCollectionHolder.getMatchResultCollection();
     }
+
+    @Bean
+    @Qualifier("ErrorCollection")
+    public MongoCollection<Document> geterrorCollection() {
+        return FongoResultsCollectionHolder.getMatchResultCollection();
+    }
+
 }
