@@ -10,6 +10,7 @@ import org.springframework.context.annotation.Configuration;
 import redis.clients.jedis.Jedis;
 
 import java.io.IOException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -52,16 +53,16 @@ public class FakeDatabaseConfig {
         String password = redisSecrets.get(0);
         String url = redisSecrets.get(1);
 
-        return "redis://rediscloud:"+password+"@"+url;
+        return "redis://rediscloud:" + password + "@" + url;
     }
 
     private Path getFilePath() throws Exception {
-        Path path = Paths.get(this.getClass().getClassLoader().getResource("redis_pass.txt").toURI());
-        if (path == null) {
-            path = Paths.get("~/redis_pass.txt");
+        URL resource = this.getClass().getClassLoader().getResource("redis_pass.txt");
+        if (resource != null) {
+            return Paths.get(resource.toURI());
+        } else {
+            return Paths.get("~/redis_pass.txt");
         }
-
-        return path;
     }
 
 }
