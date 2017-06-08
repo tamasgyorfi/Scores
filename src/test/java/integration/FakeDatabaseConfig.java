@@ -46,13 +46,22 @@ public class FakeDatabaseConfig {
     }
 
     private String getJedisEndpoint() throws Exception {
-        Path path = Paths.get(this.getClass().getClassLoader().getResource("redis_pass.txt"). toURI());
+        Path path = getFilePath();
         List<String> redisSecrets = Files.readAllLines(path);
 
         String password = redisSecrets.get(0);
         String url = redisSecrets.get(1);
 
         return "redis://rediscloud:"+password+"@"+url;
+    }
+
+    private Path getFilePath() throws Exception {
+        Path path = Paths.get(this.getClass().getClassLoader().getResource("redis_pass.txt").toURI());
+        if (path == null) {
+            path = Paths.get("~/redis_pass.txt");
+        }
+
+        return path;
     }
 
 }
