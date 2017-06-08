@@ -1,5 +1,6 @@
 package hu.bets.points.dbaccess;
 
+import com.fiftyonred.mock_jedis.MockJedis;
 import com.github.fakemongo.Fongo;
 import com.google.gson.Gson;
 import com.mongodb.client.MongoCollection;
@@ -13,6 +14,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
+import redis.clients.jedis.Jedis;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -22,13 +24,10 @@ import static org.junit.Assert.assertEquals;
 @RunWith(MockitoJUnitRunner.class)
 public class MongoBasedMatchDAOTest {
 
-    private MatchResult matchResult = new MatchResult("id1", new Result("1", "1", "1", 1, 1));
-
     @Mock
     private MongoCollection<Document> matchCollection;
-    @Mock
-    private MongoCollection<Document> errorCollection;
 
+    private Jedis errorCollection = new MockJedis("test");
     private MongoBasedMatchDAO sut;
 
     @Before
@@ -38,6 +37,7 @@ public class MongoBasedMatchDAOTest {
 
     @Test
     public void shouldSaveMatchResultToTheDatabase() {
+        MatchResult matchResult = getRecord(LocalDateTime.now(), "22");
         sut.saveMatch(matchResult);
 
         String json = new Gson().toJson(matchResult);
@@ -46,9 +46,7 @@ public class MongoBasedMatchDAOTest {
 
     @Test
     public void shouldRetrieveNotProcessedMatches() {
-        MongoDatabase database = new Fongo("fongo-server").getDatabase("test");
-        MongoCollection<Document> collection = database.getCollection("testCollection");
-        MongoCollection<Document> errorCollection = database.getCollection("errorCollection");
+        MongoCollection<Document> collection = new Fongo("fongo-server").getDatabase("test").getCollection("testCollection");
 
         sut = new FakeMongoBasedMatchDAO(collection, errorCollection);
 
@@ -79,7 +77,7 @@ public class MongoBasedMatchDAOTest {
     }
 
     class FakeMongoBasedMatchDAO extends MongoBasedMatchDAO {
-        FakeMongoBasedMatchDAO(MongoCollection<Document> matchCollection, MongoCollection<Document> errorCollection) {
+        FakeMongoBasedMatchDAO(MongoCollection<Document> matchCollection, Jedis errorCollection) {
             super(matchCollection, errorCollection);
         }
 

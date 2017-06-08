@@ -1,11 +1,13 @@
 package integration;
 
+import com.fiftyonred.mock_jedis.MockJedis;
 import com.github.fakemongo.Fongo;
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import redis.clients.jedis.Jedis;
 
 @Configuration
 public class FakeDatabaseConfig {
@@ -29,9 +31,8 @@ public class FakeDatabaseConfig {
     }
 
     @Bean
-    @Qualifier("ErrorCollection")
-    public MongoCollection<Document> geterrorCollection() {
-        return FongoResultsCollectionHolder.getMatchResultCollection();
+    public Jedis geterrorCollection() {
+        return new MockJedis("test");
     }
 
 }

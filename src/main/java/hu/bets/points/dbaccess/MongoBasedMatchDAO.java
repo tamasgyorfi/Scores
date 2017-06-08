@@ -1,12 +1,15 @@
 package hu.bets.points.dbaccess;
 
+import com.github.jedis.lock.JedisLock;
 import com.google.gson.Gson;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import hu.bets.model.MatchResult;
+import org.apache.log4j.Logger;
 import org.bson.Document;
 import org.bson.conversions.Bson;
+import redis.clients.jedis.Jedis;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
@@ -15,13 +18,17 @@ import java.util.function.Consumer;
 
 public class MongoBasedMatchDAO implements MatchDAO {
 
+    private static final Logger LOGGER = Logger.getLogger(MongoBasedMatchDAO.class);
+
     private static final int RECORD_AGE_THRESHOLD_HOURS = 24;
     private static final Gson GSON = new Gson();
+    private static final int LOCK_TIMEOUT = 1000;
+    private static final int LOCK_EXPIRATION = 3000;
 
     private MongoCollection<Document> matchCollection;
-    private MongoCollection<Document> errorCollection;
+    private Jedis errorCollection;
 
-    public MongoBasedMatchDAO(MongoCollection<Document> matchCollection, MongoCollection<Document> errorCollection) {
+    public MongoBasedMatchDAO(MongoCollection<Document> matchCollection, Jedis errorCollection) {
         this.matchCollection = matchCollection;
         this.errorCollection = errorCollection;
     }
@@ -34,7 +41,7 @@ public class MongoBasedMatchDAO implements MatchDAO {
 
     @Override
     public void betProcessingFailedFor(String matchId) {
-        errorCollection.insertOne(Document.parse(GSON.toJson(new UnprocessedMatch(matchId))));
+        errorCollection.set(matchId, matchId);
     }
 
     @Override
@@ -57,17 +64,28 @@ public class MongoBasedMatchDAO implements MatchDAO {
 
         documents.forEach((Consumer<Document>) document -> result.add(GSON.fromJson(document.toJson(), UnprocessedMatch.class).getMatchId()));
 
+        LOGGER.info("Unprocessed messages from the database: " + result);
         return result;
     }
 
     private Set<String> getUnprocessedMatches() {
 
-        FindIterable<Document> documents = errorCollection.find();
-
+        JedisLock lock = new JedisLock(errorCollection, "processingLock", LOCK_TIMEOUT, LOCK_EXPIRATION);
         Set<String> resultRecords = new HashSet<>();
-        documents.forEach((Consumer<Document>) document -> resultRecords.add(GSON.fromJson(document.toJson(), UnprocessedMatch.class).getMatchId()));
-        errorCollection.drop();
 
+        try {
+            lock.acquire();
+            try {
+                resultRecords.addAll(errorCollection.keys("*"));
+                errorCollection.flushDB();
+            } catch (Exception e) {
+                lock.release();
+            }
+        } catch (InterruptedException e) {
+            // Nothing to do here.
+        }
+
+        LOGGER.info("Unprocessed match IDs from redis: " + resultRecords);
         return resultRecords;
     }
 

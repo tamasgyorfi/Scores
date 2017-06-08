@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import redis.clients.jedis.Jedis;
 
 @Configuration
 @Import(CommonConfig.class)
@@ -30,7 +31,7 @@ public class ApplicationConfig {
 
     @Bean
     public MatchDAO matchDAO(@Qualifier("ResultsCollection") MongoCollection matchResultCollection,
-                             @Qualifier("ErrorCollection") MongoCollection errorCollection) {
+                             Jedis errorCollection) {
         return new MongoBasedMatchDAO(matchResultCollection, errorCollection);
     }
 }

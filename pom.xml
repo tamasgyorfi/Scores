@@ -69,6 +69,18 @@
             <version>1.0.4</version>
         </dependency>
 
+        <dependency>
+            <groupId>redis.clients</groupId>
+            <artifactId>jedis</artifactId>
+            <version>2.9.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.github.jedis-lock</groupId>
+            <artifactId>jedis-lock</artifactId>
+            <version>1.0.0</version>
+        </dependency>
+
         <!-- TESTING -->
 
         <dependency>
@@ -110,6 +122,13 @@
             <groupId>hu.bets</groupId>
             <artifactId>football-integration-test</artifactId>
             <version>0.0.4</version>
+            <scope>test</scope>
+        </dependency>
+
+        <dependency>
+            <groupId>com.fiftyonred</groupId>
+            <artifactId>mock-jedis</artifactId>
+            <version>0.4.0</version>
             <scope>test</scope>
         </dependency>
 
