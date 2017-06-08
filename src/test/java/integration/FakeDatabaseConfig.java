@@ -1,6 +1,5 @@
 package integration;
 
-import com.fiftyonred.mock_jedis.MockJedis;
 import com.github.fakemongo.Fongo;
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
@@ -9,7 +8,6 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import redis.clients.jedis.Jedis;
 
-import java.io.IOException;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -61,7 +59,7 @@ public class FakeDatabaseConfig {
         if (resource != null) {
             return Paths.get(resource.toURI());
         } else {
-            return Paths.get("~/redis_pass.txt");
+            return Paths.get(System.getProperty("user.home") + "/redis_pass.txt");
         }
     }
 
