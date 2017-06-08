@@ -5,18 +5,24 @@ import hu.bets.common.util.EnvironmentVarResolver;
 import hu.bets.config.ApplicationConfig;
 import hu.bets.config.MessagingConfig;
 import hu.bets.config.WebConfig;
+import hu.bets.points.dbaccess.MongoBasedMatchDAO;
+import hu.bets.points.dbaccess.MongoBasedMatchDAOTest;
 import hu.bets.steps.Given;
 import hu.bets.steps.When;
+import hu.bets.steps.util.ApplicationContextHolder;
 import hu.bets.web.model.ResultResponse;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
 
+import java.time.LocalDateTime;
+import java.util.Arrays;
 import java.util.concurrent.TimeUnit;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
+import static utils.TestUtils.getRecord;
 
 public class SaveMatchIntegrationTest {
 
@@ -67,7 +73,7 @@ public class SaveMatchIntegrationTest {
     }
 
     @Test
-    public void InfoEndpointShouldReplyWIthOk() throws Exception {
+    public void infoEndpointShouldReplyWIthOk() throws Exception {
 
         String endpoint = "http://" + EnvironmentVarResolver.getEnvVar("HOST") +
                 ":" + EnvironmentVarResolver.getEnvVar("PORT") + "/scores/football/v1/info";
@@ -76,6 +82,32 @@ public class SaveMatchIntegrationTest {
         String response = EntityUtils.toString(httpResponse.getEntity());
 
         assertEquals("<html><h1>Football-Scores up and running</h1></html>", response);
+    }
+
+    @Test
+    public void testRedisMongoInterpay() {
+        MongoBasedMatchDAO matchDAO = ApplicationContextHolder.getBean(MongoBasedMatchDAO.class);
+
+        LocalDateTime out = matchDAO.getCurrentTime().minusHours(48);
+        LocalDateTime in = matchDAO.getCurrentTime().minusHours(8);
+
+        matchDAO.saveMatch(getRecord(in, "match1"));
+        matchDAO.saveMatch(getRecord(out, "match2"));
+        matchDAO.saveMatch(getRecord(in, "match3"));
+        matchDAO.saveMatch(getRecord(in, "match4"));
+        matchDAO.saveMatch(getRecord(out, "match5"));
+        matchDAO.saveMatch(getRecord(in, "match6"));
+        matchDAO.saveMatch(getRecord(in, "match7"));
+        matchDAO.saveMatch(getRecord(out, "match8"));
+        matchDAO.saveMatch(getRecord(out, "match9"));
+        matchDAO.saveMatch(getRecord(in, "match10"));
+
+        matchDAO.betProcessingFailedFor("match1");
+        matchDAO.betProcessingFailedFor("match2");
+        matchDAO.betProcessingFailedFor("match9");
+        matchDAO.betProcessingFailedFor("match10");
+
+        assertEquals(Arrays.asList("match1", "match10"), matchDAO.getFailedMatchIds());
     }
 
 }

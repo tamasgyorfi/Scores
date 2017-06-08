@@ -89,7 +89,7 @@ public class MongoBasedMatchDAO implements MatchDAO {
         return resultRecords;
     }
 
-    protected LocalDateTime getCurrentTime() {
+    public LocalDateTime getCurrentTime() {
         return LocalDateTime.now(ZoneId.of("Europe/London"));
     }
 

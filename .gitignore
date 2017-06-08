@@ -3,3 +3,4 @@ footballscores.iml
 target/
 football-scores.iml
 work/
+src/test/resources/redis_pass.txt

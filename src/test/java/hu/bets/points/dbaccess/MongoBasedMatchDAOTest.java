@@ -20,6 +20,7 @@ import java.time.LocalDateTime;
 import java.util.Arrays;
 
 import static org.junit.Assert.assertEquals;
+import static utils.TestUtils.getRecord;
 
 @RunWith(MockitoJUnitRunner.class)
 public class MongoBasedMatchDAOTest {
@@ -72,17 +73,13 @@ public class MongoBasedMatchDAOTest {
         assertEquals(Arrays.asList("match1", "match10"), sut.getFailedMatchIds());
     }
 
-    private MatchResult getRecord(LocalDateTime matchDate, String matchId) {
-        return new MatchResult(matchId, new Result("1", "1", "1", 1, 1), matchDate);
-    }
-
     class FakeMongoBasedMatchDAO extends MongoBasedMatchDAO {
         FakeMongoBasedMatchDAO(MongoCollection<Document> matchCollection, Jedis errorCollection) {
             super(matchCollection, errorCollection);
         }
 
         @Override
-        protected LocalDateTime getCurrentTime() {
+        public LocalDateTime getCurrentTime() {
             return LocalDateTime.of(2017, 3, 19, 1, 10);
         }
     }

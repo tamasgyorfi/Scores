@@ -9,6 +9,12 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import redis.clients.jedis.Jedis;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.List;
+
 @Configuration
 public class FakeDatabaseConfig {
 
@@ -32,7 +38,21 @@ public class FakeDatabaseConfig {
 
     @Bean
     public Jedis geterrorCollection() {
-        return new MockJedis("test");
+        try {
+            return new Jedis(getJedisEndpoint());
+        } catch (Exception e) {
+            throw new IllegalStateException(e);
+        }
+    }
+
+    private String getJedisEndpoint() throws Exception {
+        Path path = Paths.get(this.getClass().getClassLoader().getResource("redis_pass.txt"). toURI());
+        List<String> redisSecrets = Files.readAllLines(path);
+
+        String password = redisSecrets.get(0);
+        String url = redisSecrets.get(1);
+
+        return "redis://rediscloud:"+password+"@"+url;
     }
 
 }
