@@ -9,6 +9,7 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 public class MessageSender {
 
@@ -28,10 +29,10 @@ public class MessageSender {
     private void run() {
         while (shouldContinue) {
             try {
-                //String payload = payloadQueue.poll(5L, TimeUnit.SECONDS);
-                shouldContinue = false;
-                String payload = "{\"matchIds\":[\"1\", \"2\", \"3\"]}";
-                sendBetAggregateRequest(payload);
+                String payload = payloadQueue.poll(5L, TimeUnit.SECONDS);
+                if (payload != null) {
+                    sendBetAggregateRequest(payload);
+                }
             } catch (Exception e) {
                 // Nothing to worry about, quit runner thread
                 shouldContinue = false;
@@ -43,17 +44,21 @@ public class MessageSender {
         LOGGER.info("Sending message to bets service: " + payload);
         for (int i = 0; i < NR_OF_RETRIES; i++) {
             try {
-                AMQP.BasicProperties.Builder builder = new AMQP.BasicProperties.Builder();
-                Map<String, Object> headers = new HashMap<>();
-                headers.put("MESSAGE_TYPE", "AGGREGATION_REQUEST");
-                builder.headers(headers);
-                channel.basicPublish(MessagingConstants.EXCHANGE_NAME, MessagingConstants.SCORES_TO_BETS_ROUTE, builder.build(), payload.getBytes());
+                channel.basicPublish(MessagingConstants.EXCHANGE_NAME, MessagingConstants.SCORES_TO_BETS_ROUTE, buildHeaders(), payload.getBytes());
                 break;
             } catch (IOException e) {
                 LOGGER.error("Unable to send batch: " + payload, e);
             }
         }
         LOGGER.info("Message sent successfully.");
+    }
+
+    private AMQP.BasicProperties buildHeaders() {
+        AMQP.BasicProperties.Builder builder = new AMQP.BasicProperties.Builder();
+        Map<String, Object> headers = new HashMap<>();
+        headers.put("MESSAGE_TYPE", "AGGREGATION_REQUEST");
+        return builder.headers(headers).build();
+
     }
 
     public void start() {
