@@ -10,7 +10,6 @@ import java.io.IOException;
 
 public class MessageConsumer extends DefaultConsumer {
 
-    private static final String MESSAGE_TYPE_KEY = "MESSAGE_TYPE";
     private static Logger LOGGER = Logger.getLogger(MessageConsumer.class);
 
     public MessageConsumer(Channel channel) {

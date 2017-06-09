@@ -6,7 +6,6 @@ import hu.bets.config.ApplicationConfig;
 import hu.bets.config.MessagingConfig;
 import hu.bets.config.WebConfig;
 import hu.bets.points.dbaccess.MongoBasedMatchDAO;
-import hu.bets.points.dbaccess.MongoBasedMatchDAOTest;
 import hu.bets.steps.Given;
 import hu.bets.steps.When;
 import hu.bets.steps.util.ApplicationContextHolder;

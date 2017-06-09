@@ -8,9 +8,12 @@ import hu.bets.common.messaging.MessageListener;
 import hu.bets.messaging.receiver.MessageConsumer;
 import hu.bets.messaging.sender.MessageSender;
 import org.apache.log4j.Logger;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+
+import java.util.concurrent.LinkedBlockingDeque;
 
 import static hu.bets.messaging.MessagingConstants.*;
 
@@ -18,8 +21,12 @@ import static hu.bets.messaging.MessagingConstants.*;
 @Import(CommonMessagingConfig.class)
 public class MessagingConfig {
 
-    private static final String MESSAGING_URI = "CLOUDAMQP_URL";
     private static final Logger LOGGER = Logger.getLogger(MessagingConfig.class);
+
+    @Autowired
+    private Channel senderChannel;
+    @Autowired
+    private Channel receiverChannel;
 
     @Bean
     public MessageConsumer betAggregationRequestListener(Channel channel) {
@@ -27,18 +34,18 @@ public class MessagingConfig {
     }
 
     @Bean
-    public Consumer consumer(Channel channel) {
-        return new MessageConsumer(channel);
+    public Consumer consumer() {
+        return new MessageConsumer(receiverChannel);
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
-    public MessageSender betAggregateResultSender(Channel channel) {
-        return new MessageSender(channel);
+    public MessageSender betAggregateResultSender() {
+        return new MessageSender(senderChannel, new LinkedBlockingDeque<>());
     }
 
     @Bean
-    public MessageListener messageListener(Channel channel, Consumer consumer) {
-        return new DefaultMessageListener(channel, consumer, AGGREGATE_REQUEST_QUEUE_NAME, EXCHANGE_NAME, AGGREGATE_REQUEST_ROUTING_KEY);
+    public MessageListener messageListener(Consumer consumer) {
+        return new DefaultMessageListener(receiverChannel, consumer, BETS_TO_SCORES_QUEUE, EXCHANGE_NAME, AGGREGATE_REQUEST_ROUTING_KEY);
     }
 
 }
