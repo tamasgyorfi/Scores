@@ -7,7 +7,6 @@ import hu.bets.common.messaging.DefaultMessageListener;
 import hu.bets.common.messaging.MessageListener;
 import hu.bets.messaging.receiver.MessageConsumer;
 import hu.bets.messaging.sender.MessageSender;
-import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -21,31 +20,23 @@ import static hu.bets.messaging.MessagingConstants.*;
 @Import(CommonMessagingConfig.class)
 public class MessagingConfig {
 
-    private static final Logger LOGGER = Logger.getLogger(MessagingConfig.class);
-
     @Autowired
     private Channel senderChannel;
     @Autowired
     private Channel receiverChannel;
 
     @Bean
-    public MessageConsumer betAggregationRequestListener(Channel channel) {
-        return new MessageConsumer(channel);
+    public Consumer consumer() {
+        return new MessageConsumer(receiverChannel);
     }
 
     @Bean
-    public Consumer consumer() {
-        return new MessageConsumer(receiverChannel);
+    public MessageListener messageListener(Consumer consumer) {
+        return new DefaultMessageListener(receiverChannel, consumer, BETS_TO_SCORES_QUEUE, EXCHANGE_NAME, BETS_TO_SCORES_ROUTE);
     }
 
     @Bean(initMethod = "start", destroyMethod = "stop")
     public MessageSender betAggregateResultSender() {
         return new MessageSender(senderChannel, new LinkedBlockingDeque<>());
     }
-
-    @Bean
-    public MessageListener messageListener(Consumer consumer) {
-        return new DefaultMessageListener(receiverChannel, consumer, BETS_TO_SCORES_QUEUE, EXCHANGE_NAME, AGGREGATE_REQUEST_ROUTING_KEY);
-    }
-
 }
