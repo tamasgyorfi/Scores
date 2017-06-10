@@ -6,7 +6,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
-public class MatchResult {
+public class FinalMatchResult {
 
     private static final ZoneId ZONE_ID = ZoneId.of("Europe/London");
 
@@ -14,13 +14,13 @@ public class MatchResult {
     private final String matchDate;
     private final Result result;
 
-    public MatchResult(String matchId, Result result, LocalDateTime matchDate) {
+    public FinalMatchResult(String matchId, Result result, LocalDateTime matchDate) {
         this.matchId = matchId;
         this.matchDate = DateUtil.format(matchDate);
         this.result = result;
     }
 
-    public MatchResult(String matchId, Result result) {
+    public FinalMatchResult(String matchId, Result result) {
         this.matchId = matchId;
         this.matchDate = DateUtil.format(LocalDateTime.now(ZONE_ID));
         this.result = result;
@@ -40,7 +40,7 @@ public class MatchResult {
 
     @Override
     public String toString() {
-        return "MatchResult{" +
+        return "FinalMatchResult{" +
                 "matchId='" + matchId + '\'' +
                 ", matchDate=" + matchDate +
                 ", result=" + result +

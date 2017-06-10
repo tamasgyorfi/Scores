@@ -9,7 +9,6 @@ import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.BlockingQueue;
-import java.util.concurrent.TimeUnit;
 
 public class MessageSender {
 
@@ -29,10 +28,10 @@ public class MessageSender {
     private void run() {
         while (shouldContinue) {
             try {
-                String payload = payloadQueue.poll(5L, TimeUnit.SECONDS);
-                if (payload != null) {
-                    sendBetAggregateRequest(payload);
-                }
+                //String payload = payloadQueue.poll(5L, TimeUnit.SECONDS);
+                shouldContinue = false;
+                String payload = "{\"matchIds\":[\"1\", \"2\", \"3\"]}";
+                sendBetAggregateRequest(payload);
             } catch (Exception e) {
                 // Nothing to worry about, quit runner thread
                 shouldContinue = false;

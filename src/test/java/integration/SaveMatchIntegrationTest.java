@@ -5,7 +5,7 @@ import hu.bets.common.util.EnvironmentVarResolver;
 import hu.bets.config.ApplicationConfig;
 import hu.bets.config.MessagingConfig;
 import hu.bets.config.WebConfig;
-import hu.bets.points.dbaccess.MongoBasedMatchDAO;
+import hu.bets.points.dbaccess.MongoBasedScoresServiceDAO;
 import hu.bets.steps.Given;
 import hu.bets.steps.When;
 import hu.bets.steps.util.ApplicationContextHolder;
@@ -85,7 +85,7 @@ public class SaveMatchIntegrationTest {
 
     @Test
     public void testRedisMongoInterpay() {
-        MongoBasedMatchDAO matchDAO = ApplicationContextHolder.getBean(MongoBasedMatchDAO.class);
+        MongoBasedScoresServiceDAO matchDAO = ApplicationContextHolder.getBean(MongoBasedScoresServiceDAO.class);
 
         LocalDateTime out = matchDAO.getCurrentTime().minusHours(48);
         LocalDateTime in = matchDAO.getCurrentTime().minusHours(8);

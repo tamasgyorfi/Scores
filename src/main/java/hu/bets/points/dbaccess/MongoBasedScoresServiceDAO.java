@@ -5,7 +5,9 @@ import com.google.gson.Gson;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
-import hu.bets.model.MatchResult;
+import hu.bets.model.Bet;
+import hu.bets.model.FinalMatchResult;
+import hu.bets.model.Result;
 import org.apache.log4j.Logger;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -16,9 +18,9 @@ import java.time.ZoneId;
 import java.util.*;
 import java.util.function.Consumer;
 
-public class MongoBasedMatchDAO implements MatchDAO {
+public class MongoBasedScoresServiceDAO implements ScoresServiceDAO {
 
-    private static final Logger LOGGER = Logger.getLogger(MongoBasedMatchDAO.class);
+    private static final Logger LOGGER = Logger.getLogger(MongoBasedScoresServiceDAO.class);
 
     private static final int RECORD_AGE_THRESHOLD_HOURS = 24;
     private static final Gson GSON = new Gson();
@@ -26,16 +28,18 @@ public class MongoBasedMatchDAO implements MatchDAO {
     private static final int LOCK_EXPIRATION = 3000;
 
     private MongoCollection<Document> matchCollection;
+    private MongoCollection<Document> scoreCollection;
     private Jedis errorCollection;
 
-    public MongoBasedMatchDAO(MongoCollection<Document> matchCollection, Jedis errorCollection) {
+    public MongoBasedScoresServiceDAO(MongoCollection<Document> matchCollection, MongoCollection<Document> scoreCollection, Jedis errorCollection) {
         this.matchCollection = matchCollection;
+        this.scoreCollection = scoreCollection;
         this.errorCollection = errorCollection;
     }
 
     @Override
-    public void saveMatch(MatchResult matchResult) {
-        String recordJson = GSON.toJson(matchResult);
+    public void saveMatch(FinalMatchResult finalMatchResult) {
+        String recordJson = GSON.toJson(finalMatchResult);
         matchCollection.insertOne(Document.parse(recordJson));
     }
 
@@ -49,6 +53,37 @@ public class MongoBasedMatchDAO implements MatchDAO {
         Set<String> unprocessedMatches = getUnprocessedMatches();
         return filterUnprocessedMatches(unprocessedMatches);
     }
+
+    @Override
+    public void savePoints(Bet bet, int value) {
+
+    }
+
+    @Override
+    public Optional<Result> getResult(String matchId) {
+        Optional<Result> cachedResult = findMatchInCache(matchId);
+        if (!cachedResult.isPresent()) {
+            Optional<Result> dbResult = findMatchInDatabase(matchId);
+            if (dbResult.isPresent()) {
+                cacheResult(matchId, dbResult.get());
+                return dbResult;
+            }
+        }
+
+        return Optional.empty();
+    }
+
+    private void cacheResult(String matchId, Result result) {
+    }
+
+    private Optional<Result> findMatchInDatabase(String matchId) {
+        return null;
+    }
+
+    private Optional<Result> findMatchInCache(String matchId) {
+        return null;
+    }
+
 
     private Collection<String> filterUnprocessedMatches(Set<String> unprocessedMatches) {
 

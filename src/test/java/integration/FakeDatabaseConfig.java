@@ -27,12 +27,23 @@ public class FakeDatabaseConfig {
         public static MongoCollection getMatchResultCollection() {
             return matchResultCollection;
         }
+
+        public static MongoCollection getScoresCollection() {
+            return scoresCollection;
+        }
+
     }
 
     @Bean
     @Qualifier("ResultsCollection")
     public MongoCollection<Document> getResultsCollection() {
         return FongoResultsCollectionHolder.getMatchResultCollection();
+    }
+
+    @Bean
+    @Qualifier("ScoresCollection")
+    public MongoCollection<Document> getScoresCollection() {
+        return FongoResultsCollectionHolder.getScoresCollection();
     }
 
     @Bean

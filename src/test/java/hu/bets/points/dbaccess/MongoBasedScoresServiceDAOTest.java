@@ -4,9 +4,7 @@ import com.fiftyonred.mock_jedis.MockJedis;
 import com.github.fakemongo.Fongo;
 import com.google.gson.Gson;
 import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
-import hu.bets.model.MatchResult;
-import hu.bets.model.Result;
+import hu.bets.model.FinalMatchResult;
 import org.bson.Document;
 import org.junit.Before;
 import org.junit.Test;
@@ -23,25 +21,25 @@ import static org.junit.Assert.assertEquals;
 import static utils.TestUtils.getRecord;
 
 @RunWith(MockitoJUnitRunner.class)
-public class MongoBasedMatchDAOTest {
+public class MongoBasedScoresServiceDAOTest {
 
     @Mock
     private MongoCollection<Document> matchCollection;
 
     private Jedis errorCollection = new MockJedis("test");
-    private MongoBasedMatchDAO sut;
+    private MongoBasedScoresServiceDAO sut;
 
     @Before
     public void setp() {
-        sut = new MongoBasedMatchDAO(matchCollection, errorCollection);
+        sut = new MongoBasedScoresServiceDAO(matchCollection, null, errorCollection);
     }
 
     @Test
     public void shouldSaveMatchResultToTheDatabase() {
-        MatchResult matchResult = getRecord(LocalDateTime.now(), "22");
-        sut.saveMatch(matchResult);
+        FinalMatchResult finalMatchResult = getRecord(LocalDateTime.now(), "22");
+        sut.saveMatch(finalMatchResult);
 
-        String json = new Gson().toJson(matchResult);
+        String json = new Gson().toJson(finalMatchResult);
         Mockito.verify(matchCollection).insertOne(Document.parse(json));
     }
 
@@ -49,7 +47,7 @@ public class MongoBasedMatchDAOTest {
     public void shouldRetrieveNotProcessedMatches() {
         MongoCollection<Document> collection = new Fongo("fongo-server").getDatabase("test").getCollection("testCollection");
 
-        sut = new FakeMongoBasedMatchDAO(collection, errorCollection);
+        sut = new FakeMongoBasedScoresServiceDAO(collection, errorCollection);
 
         LocalDateTime out = sut.getCurrentTime().minusHours(48);
         LocalDateTime in = sut.getCurrentTime().minusHours(8);
@@ -73,9 +71,9 @@ public class MongoBasedMatchDAOTest {
         assertEquals(Arrays.asList("match1", "match10"), sut.getFailedMatchIds());
     }
 
-    class FakeMongoBasedMatchDAO extends MongoBasedMatchDAO {
-        FakeMongoBasedMatchDAO(MongoCollection<Document> matchCollection, Jedis errorCollection) {
-            super(matchCollection, errorCollection);
+    class FakeMongoBasedScoresServiceDAO extends MongoBasedScoresServiceDAO {
+        FakeMongoBasedScoresServiceDAO(MongoCollection<Document> matchCollection, Jedis errorCollection) {
+            super(matchCollection, null, errorCollection);
         }
 
         @Override
