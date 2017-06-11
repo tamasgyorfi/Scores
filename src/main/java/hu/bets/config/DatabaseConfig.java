@@ -21,7 +21,7 @@ public class DatabaseConfig {
     private static final String SCORES_COLLECTION_NAME = "Scores";
     private static final String ERROR_COLLECTION_NAME = "Error";
     private static final String RESULTS_COLLECTION_NAME = "Results";
-    private static final String REDIS_URL = "REDISCLOUD_URL";
+    private static final String REDIS_URL = "REDIS_URL";
 
     @Bean
     @Qualifier("mongoDBName")
