@@ -2,7 +2,6 @@ package hu.bets.messaging.processing.processor;
 
 import hu.bets.model.Bet;
 import hu.bets.model.BetsBatch;
-import hu.bets.model.ProcessingResult;
 import hu.bets.model.Result;
 import hu.bets.points.dbaccess.ScoresServiceDAO;
 import hu.bets.points.services.points.PointsCalculatorService;
@@ -23,7 +22,7 @@ public class DefaultBetBatchProcessor implements BetBatchProcessor {
         this.pointsCalculatorService = pointsCalculatorService;
     }
 
-    public ProcessingResult processMatches(BetsBatch betsBatch) {
+    public Set<String> processMatches(BetsBatch betsBatch) {
 
         Set<String> unprocessedMatches = new HashSet<>();
         Set<String> processedBets = new HashSet<>();
@@ -38,7 +37,8 @@ public class DefaultBetBatchProcessor implements BetBatchProcessor {
             }
         }
 
-        return new ProcessingResult(unprocessedMatches, processedBets);
+        dataAccess.saveNonProcessedMatches(unprocessedMatches);
+        return processedBets;
     }
 
     private void processOneMatch(Bet bet) {
@@ -51,5 +51,4 @@ public class DefaultBetBatchProcessor implements BetBatchProcessor {
             throw new BatchProcessingException(e);
         }
     }
-
 }

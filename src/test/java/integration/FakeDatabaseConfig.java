@@ -62,7 +62,7 @@ public class FakeDatabaseConfig {
         String password = redisSecrets.get(0);
         String url = redisSecrets.get(1);
 
-        return "redis://rediscloud:" + password + "@" + url;
+        return "redis://h:" + password + "@" + url;
     }
 
     private Path getFilePath() throws Exception {

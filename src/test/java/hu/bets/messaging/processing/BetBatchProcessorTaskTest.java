@@ -7,7 +7,6 @@ import hu.bets.messaging.processing.processor.DefaultBetBatchProcessor;
 import hu.bets.messaging.processing.validation.DefaultBetBatchValidator;
 import hu.bets.model.Bet;
 import hu.bets.model.BetsBatch;
-import hu.bets.model.ProcessingResult;
 import hu.bets.model.Result;
 import hu.bets.points.dbaccess.ScoresServiceDAO;
 import hu.bets.points.services.points.PointsCalculatorService;
@@ -17,14 +16,10 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
 public class BetBatchProcessorTaskTest {
@@ -51,9 +46,8 @@ public class BetBatchProcessorTaskTest {
     public void shouldDoNothingIfThePayloadIsNotParsable() throws Exception {
         when(objectMapper.readValue(FAKE_PAYLOAD, BetsBatch.class)).thenThrow(new IllegalArgumentException("aa"));
 
-        ProcessingResult result = sut.call();
-        assertEquals(0, result.getBetIdsToAcknowledge().size());
-        assertEquals(0, result.getFailedMatchIds().size());
+        Set<String> result = sut.call();
+        assertEquals(0, result.size());
     }
 
     @Test
@@ -65,9 +59,8 @@ public class BetBatchProcessorTaskTest {
         when(objectMapper.readValue(FAKE_PAYLOAD, BetsBatch.class)).thenReturn(betsBatch);
         when(hashGenerator.getHash(bets)).thenReturn("different hash");
 
-        ProcessingResult result = sut.call();
-        assertEquals(0, result.getBetIdsToAcknowledge().size());
-        assertEquals(0, result.getFailedMatchIds().size());
+        Set<String> result = sut.call();
+        assertEquals(0, result.size());
     }
 
     @Test
@@ -79,9 +72,8 @@ public class BetBatchProcessorTaskTest {
         when(objectMapper.readValue(FAKE_PAYLOAD, BetsBatch.class)).thenReturn(betsBatch);
         when(hashGenerator.getHash(bets)).thenReturn(HASH);
 
-        ProcessingResult result = sut.call();
-        assertEquals(0, result.getBetIdsToAcknowledge().size());
-        assertEquals(0, result.getFailedMatchIds().size());
+        Set<String> result = sut.call();
+        assertEquals(0, result.size());
     }
 
     @Test
@@ -113,13 +105,12 @@ public class BetBatchProcessorTaskTest {
 
         doThrow(new IllegalArgumentException()).when(dataAccess).savePoints(bets.get(3), 10);
 
-        ProcessingResult result = sut.call();
+        Set<String> result = sut.call();
 
-        assertEquals(4, result.getFailedMatchIds().size());
-        assertEquals(Sets.newHashSet("1", "2", "3", "4"), result.getFailedMatchIds());
 
-        assertEquals(1, result.getBetIdsToAcknowledge().size());
-        assertEquals(Sets.newHashSet("95"), result.getBetIdsToAcknowledge());
+        assertEquals(1, result.size());
+        assertEquals(Sets.newHashSet("95"), result);
+        verify(dataAccess).saveNonProcessedMatches(Sets.newHashSet("1", "2", "3", "4"));
     }
 
     private Result getResult() {

@@ -6,6 +6,7 @@ import hu.bets.model.Result;
 
 import java.util.Collection;
 import java.util.Optional;
+import java.util.Set;
 
 public interface ScoresServiceDAO {
 
@@ -48,4 +49,11 @@ public interface ScoresServiceDAO {
      * @return
      */
     Optional<Result> getResult(String matchId);
+
+    /**
+     * Saves matchIDs for which there are unprocessed bets.
+     *
+     * @param unprocessedMatches
+     */
+    void saveNonProcessedMatches(Set<String> unprocessedMatches);
 }

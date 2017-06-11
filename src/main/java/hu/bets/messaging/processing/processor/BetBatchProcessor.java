@@ -1,7 +1,8 @@
 package hu.bets.messaging.processing.processor;
 
 import hu.bets.model.BetsBatch;
-import hu.bets.model.ProcessingResult;
+
+import java.util.Set;
 
 public interface BetBatchProcessor {
 
@@ -12,5 +13,5 @@ public interface BetBatchProcessor {
      * @param betsBatch
      * @return
      */
-    ProcessingResult processMatches(BetsBatch betsBatch);
+    Set<String> processMatches(BetsBatch betsBatch);
 }

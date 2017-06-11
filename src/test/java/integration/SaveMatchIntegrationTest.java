@@ -14,6 +14,7 @@ import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import redis.clients.jedis.Jedis;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;

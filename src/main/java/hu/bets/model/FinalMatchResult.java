@@ -1,11 +1,12 @@
 package hu.bets.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import hu.bets.points.dbaccess.DateUtil;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
 
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class FinalMatchResult {
 
     private static final ZoneId ZONE_ID = ZoneId.of("Europe/London");
@@ -13,6 +14,12 @@ public class FinalMatchResult {
     private final String matchId;
     private final String matchDate;
     private final Result result;
+
+    private FinalMatchResult() {
+        matchId = null;
+        matchDate = null;
+        result = null;
+    }
 
     public FinalMatchResult(String matchId, Result result, LocalDateTime matchDate) {
         this.matchId = matchId;
