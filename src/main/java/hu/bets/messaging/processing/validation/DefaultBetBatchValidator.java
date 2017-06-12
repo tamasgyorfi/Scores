@@ -1,6 +1,6 @@
 package hu.bets.messaging.processing.validation;
 
-import hu.bets.common.util.HashGenerator;
+import hu.bets.common.util.hash.HashGenerator;
 import hu.bets.model.BetsBatch;
 
 public class DefaultBetBatchValidator implements BetBatchValidator {

@@ -1,7 +1,7 @@
 package hu.bets.points.services.conversion;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import hu.bets.common.util.SchemaValidator;
+import hu.bets.common.util.schema.SchemaValidator;
 import hu.bets.model.FinalMatchResult;
 import hu.bets.model.Result;
 

@@ -18,7 +18,7 @@ import java.util.List;
 @Configuration
 public class FakeDatabaseConfig {
 
-    private static final class FongoResultsCollectionHolder {
+    static final class FongoResultsCollectionHolder {
 
         private static MongoDatabase fongo = new Fongo("database-1").getDatabase("aaa");
         private static MongoCollection matchResultCollection = fongo.getCollection("matchResult");

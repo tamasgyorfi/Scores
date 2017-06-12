@@ -1,7 +1,7 @@
 package hu.bets.messaging.processing;
 
 import com.google.common.collect.Sets;
-import hu.bets.common.util.HashGenerator;
+import hu.bets.common.util.hash.HashGenerator;
 import hu.bets.messaging.processing.processor.BetBatchProcessorTask;
 import hu.bets.messaging.processing.processor.DefaultBetBatchProcessor;
 import hu.bets.messaging.processing.validation.DefaultBetBatchValidator;
