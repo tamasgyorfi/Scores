@@ -22,8 +22,8 @@ public class ProcessingResult<T> {
         this.type = type;
     }
 
-    public Optional<T> getPayload() {
-        return Optional.ofNullable(payload);
+    public T getPayload() {
+        return payload;
     }
 
     public Type getType() {

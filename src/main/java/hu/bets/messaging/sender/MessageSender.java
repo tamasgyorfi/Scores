@@ -32,10 +32,7 @@ public class MessageSender {
             try {
                 Future<ProcessingResult> payload = resultQueue.poll(5L, TimeUnit.SECONDS);
                 if (payload != null) {
-                    Optional<ProcessingResult> maybePayload = payload.get().getPayload();
-                    if (maybePayload.isPresent()) {
-                        sendMessage(new JsonUtils().toJson(maybePayload.get()));
-                    }
+                    sendMessage(new JsonUtils().toJson(payload.get().getPayload()));
                 }
             } catch (Exception e) {
                 // Nothing to worry about, quit runner thread

@@ -49,7 +49,7 @@ public class BetBatchProcessorTaskTest {
         when(jsonUtils.fromJson(FAKE_PAYLOAD, BetsBatch.class)).thenThrow(new IllegalArgumentException("aa"));
 
         ProcessingResult<Set<String>> result = sut.call();
-        assertEquals(Optional.empty(), result.getPayload());
+        assertEquals(null, result.getPayload());
     }
 
     @Test
@@ -62,7 +62,7 @@ public class BetBatchProcessorTaskTest {
         when(hashGenerator.getHash(bets)).thenReturn("different hash");
 
         ProcessingResult<Set<String>> result = sut.call();
-        assertEquals(Optional.empty(), result.getPayload());
+        assertEquals(null, result.getPayload());
     }
 
     @Test
@@ -75,7 +75,7 @@ public class BetBatchProcessorTaskTest {
         when(hashGenerator.getHash(bets)).thenReturn(HASH);
 
         ProcessingResult<Set<String>> result = sut.call();
-        assertEquals(Optional.empty(), result.getPayload());
+        assertEquals(null, result.getPayload());
     }
 
     @Test
@@ -110,8 +110,8 @@ public class BetBatchProcessorTaskTest {
         ProcessingResult<Set<String>> result = sut.call();
 
 
-        assertEquals(1, result.getPayload().get().size());
-        assertEquals(Sets.newHashSet("95"), result.getPayload().get());
+        assertEquals(1, result.getPayload().size());
+        assertEquals(Sets.newHashSet("95"), result.getPayload());
         verify(dataAccess).saveNonProcessedMatches(Sets.newHashSet("1", "2", "3", "4"));
     }
 
