@@ -1,15 +1,17 @@
 package hu.bets.messaging.processing;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.common.collect.Sets;
 import hu.bets.common.util.HashGenerator;
+import hu.bets.messaging.processing.processor.BetBatchProcessorTask;
 import hu.bets.messaging.processing.processor.DefaultBetBatchProcessor;
 import hu.bets.messaging.processing.validation.DefaultBetBatchValidator;
 import hu.bets.model.Bet;
 import hu.bets.model.BetsBatch;
+import hu.bets.model.ProcessingResult;
 import hu.bets.model.Result;
 import hu.bets.points.dbaccess.ScoresServiceDAO;
 import hu.bets.points.services.points.PointsCalculatorService;
+import hu.bets.utils.JsonUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -29,7 +31,7 @@ public class BetBatchProcessorTaskTest {
     private BetBatchProcessorTask sut;
 
     @Mock
-    private ObjectMapper objectMapper;
+    private JsonUtils jsonUtils;
     @Mock
     private PointsCalculatorService pointsCalculatorService;
     @Mock
@@ -44,10 +46,10 @@ public class BetBatchProcessorTaskTest {
 
     @Test
     public void shouldDoNothingIfThePayloadIsNotParsable() throws Exception {
-        when(objectMapper.readValue(FAKE_PAYLOAD, BetsBatch.class)).thenThrow(new IllegalArgumentException("aa"));
+        when(jsonUtils.fromJson(FAKE_PAYLOAD, BetsBatch.class)).thenThrow(new IllegalArgumentException("aa"));
 
-        Set<String> result = sut.call();
-        assertEquals(0, result.size());
+        ProcessingResult<Set<String>> result = sut.call();
+        assertEquals(Optional.empty(), result.getPayload());
     }
 
     @Test
@@ -56,11 +58,11 @@ public class BetBatchProcessorTaskTest {
         bets.add(getBet("1", "99"));
         BetsBatch betsBatch = new BetsBatch(1, bets, HASH);
 
-        when(objectMapper.readValue(FAKE_PAYLOAD, BetsBatch.class)).thenReturn(betsBatch);
+        when(jsonUtils.fromJson(FAKE_PAYLOAD, BetsBatch.class)).thenReturn(betsBatch);
         when(hashGenerator.getHash(bets)).thenReturn("different hash");
 
-        Set<String> result = sut.call();
-        assertEquals(0, result.size());
+        ProcessingResult<Set<String>> result = sut.call();
+        assertEquals(Optional.empty(), result.getPayload());
     }
 
     @Test
@@ -69,11 +71,11 @@ public class BetBatchProcessorTaskTest {
         bets.add(getBet("1", "99"));
         BetsBatch betsBatch = new BetsBatch(2, bets, HASH);
 
-        when(objectMapper.readValue(FAKE_PAYLOAD, BetsBatch.class)).thenReturn(betsBatch);
+        when(jsonUtils.fromJson(FAKE_PAYLOAD, BetsBatch.class)).thenReturn(betsBatch);
         when(hashGenerator.getHash(bets)).thenReturn(HASH);
 
-        Set<String> result = sut.call();
-        assertEquals(0, result.size());
+        ProcessingResult<Set<String>> result = sut.call();
+        assertEquals(Optional.empty(), result.getPayload());
     }
 
     @Test
@@ -90,7 +92,7 @@ public class BetBatchProcessorTaskTest {
         Result result2 = getResult();
         Result result3 = getResult();
 
-        when(objectMapper.readValue(FAKE_PAYLOAD, BetsBatch.class)).thenReturn(betsBatch);
+        when(jsonUtils.fromJson(FAKE_PAYLOAD, BetsBatch.class)).thenReturn(betsBatch);
         when(hashGenerator.getHash(bets)).thenReturn(HASH);
 
         when(dataAccess.getResult("1")).thenReturn(Optional.empty());
@@ -105,11 +107,11 @@ public class BetBatchProcessorTaskTest {
 
         doThrow(new IllegalArgumentException()).when(dataAccess).savePoints(bets.get(3), 10);
 
-        Set<String> result = sut.call();
+        ProcessingResult<Set<String>> result = sut.call();
 
 
-        assertEquals(1, result.size());
-        assertEquals(Sets.newHashSet("95"), result);
+        assertEquals(1, result.getPayload().get().size());
+        assertEquals(Sets.newHashSet("95"), result.getPayload().get());
         verify(dataAccess).saveNonProcessedMatches(Sets.newHashSet("1", "2", "3", "4"));
     }
 
@@ -129,8 +131,8 @@ public class BetBatchProcessorTaskTest {
         }
 
         @Override
-        protected ObjectMapper getMapper() {
-            return objectMapper;
+        protected JsonUtils getMapper() {
+            return jsonUtils;
         }
     }
 }

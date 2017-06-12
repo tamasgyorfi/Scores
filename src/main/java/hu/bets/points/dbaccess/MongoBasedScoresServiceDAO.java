@@ -1,7 +1,5 @@
 package hu.bets.points.dbaccess;
 
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.github.jedis.lock.JedisLock;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
@@ -10,12 +8,12 @@ import hu.bets.model.Bet;
 import hu.bets.model.FinalMatchResult;
 import hu.bets.model.Result;
 import hu.bets.model.UnprocessedMatch;
+import hu.bets.utils.JsonUtils;
 import org.apache.log4j.Logger;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import redis.clients.jedis.Jedis;
 
-import java.io.IOException;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.*;
@@ -32,7 +30,7 @@ public class MongoBasedScoresServiceDAO implements ScoresServiceDAO {
     private static final int LOCK_TIMEOUT = 1000;
     private static final int LOCK_EXPIRATION = 3000;
     private static final int EXPIRATION_TIME = 60 * 60;
-    private static final ObjectMapper MAPPER = new ObjectMapper();
+    private static final JsonUtils JSON_UTILS = new JsonUtils();
 
     private MongoCollection<Document> matchCollection;
     private MongoCollection<Document> scoreCollection;
@@ -46,7 +44,7 @@ public class MongoBasedScoresServiceDAO implements ScoresServiceDAO {
 
     @Override
     public void saveMatch(FinalMatchResult finalMatchResult) {
-        String recordJson = toJson(finalMatchResult);
+        String recordJson = JSON_UTILS.toJson(finalMatchResult);
         matchCollection.insertOne(Document.parse(recordJson));
         cacheResult(finalMatchResult.getMatchId(), finalMatchResult.getResult());
     }
@@ -100,7 +98,7 @@ public class MongoBasedScoresServiceDAO implements ScoresServiceDAO {
 
     private void cacheResult(String matchId, Result result) {
         cacheCollection.select(MATCH_RESULTS_COLLECTION);
-        cacheCollection.setex(matchId, EXPIRATION_TIME, toJson(result));
+        cacheCollection.setex(matchId, EXPIRATION_TIME, JSON_UTILS.toJson(result));
     }
 
     private Optional<Result> findMatchInDatabase(String matchId) {
@@ -109,7 +107,7 @@ public class MongoBasedScoresServiceDAO implements ScoresServiceDAO {
             return Optional.empty();
         }
 
-        return Optional.of(fromJson(matchResult.toJson(), FinalMatchResult.class).getResult());
+        return Optional.of(JSON_UTILS.fromJson(matchResult.toJson(), FinalMatchResult.class).getResult());
     }
 
     private Optional<Result> findMatchInCache(String matchId) {
@@ -118,7 +116,7 @@ public class MongoBasedScoresServiceDAO implements ScoresServiceDAO {
         if (json == null) {
             return Optional.empty();
         }
-        return Optional.of(fromJson(json, Result.class));
+        return Optional.of(JSON_UTILS.fromJson(json, Result.class));
     }
 
     private Collection<String> filterUnprocessedMatches(Set<String> unprocessedMatches) {
@@ -133,30 +131,10 @@ public class MongoBasedScoresServiceDAO implements ScoresServiceDAO {
         FindIterable<Document> documents = matchCollection.find(query);
         List<String> result = new LinkedList<>();
 
-        documents.forEach((Consumer<Document>) document -> result.add(fromJson(document.toJson(), UnprocessedMatch.class).getMatchId()));
+        documents.forEach((Consumer<Document>) document -> result.add(JSON_UTILS.fromJson(document.toJson(), UnprocessedMatch.class).getMatchId()));
 
         LOGGER.info("Unprocessed messages from the database: " + result);
         return result;
-    }
-
-    private <T> T fromJson(String json, Class<T> clazz) {
-        try {
-            return MAPPER.readValue(json, clazz);
-        } catch (IOException e) {
-            LOGGER.error("Unable to parse json: " + json, e);
-        }
-
-        return null;
-    }
-
-    private String toJson(Object object) {
-        try {
-            return MAPPER.writeValueAsString(object);
-        } catch (JsonProcessingException e) {
-            LOGGER.error("Unable to convert to json; object was: " + object);
-        }
-
-        return "";
     }
 
     private Set<String> getUnprocessedMatches() {
