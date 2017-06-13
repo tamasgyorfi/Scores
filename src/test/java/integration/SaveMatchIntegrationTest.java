@@ -54,9 +54,9 @@ public class SaveMatchIntegrationTest {
     private static final int DB_INDEX = 1;
     private static final long WAIT_TIME_SECONDS = 2;
 
-    private Bet bet1 = new Bet("user1", "match100", new Result("compId100", "team1", "team2", 3, 1), "bet100");
-    private Bet bet2 = new Bet("user2", "match200", new Result("compId100", "team3", "team9", 3, 3), "bet200");
-    private Bet bet3 = new Bet("user3", "match300", new Result("compId100", "team3", "team9", 3, 3), "bet300");
+    private Bet bet1 = new Bet("user1", "match100", new Result("match100", "compId100", "team1", "team2", 3, 1), "bet100");
+    private Bet bet2 = new Bet("user2", "match200", new Result("match200", "compId100", "team3", "team9", 3, 3), "bet200");
+    private Bet bet3 = new Bet("user3", "match300", new Result("match300", "compId100", "team3", "team9", 3, 3), "bet300");
 
     private List<Bet> bets = Lists.newArrayList(bet1, bet2, bet3);
 
@@ -140,8 +140,8 @@ public class SaveMatchIntegrationTest {
 
         MongoCollection matchCollection = FakeDatabaseConfig.FongoResultsCollectionHolder.getMatchResultCollection();
 
-        MatchResult result1 = new MatchResult("match100", new Result("compId100", "team1", "team2", 1, 1));
-        MatchResult result2 = new MatchResult("match200", new Result("compId100", "team3", "team9", 3, 3));
+        MatchResult result1 = new MatchResult("match100", new Result("match100", "compId100", "team1", "team2", 1, 1));
+        MatchResult result2 = new MatchResult("match200", new Result("match200", "compId100", "team3", "team9", 3, 3));
 
         System.out.println("-->"+new Gson().toJson(new SecureMatchResult(result1, "ashdj")));
 

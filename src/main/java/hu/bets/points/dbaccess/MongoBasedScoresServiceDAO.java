@@ -7,7 +7,6 @@ import com.mongodb.client.model.Filters;
 import hu.bets.model.Bet;
 import hu.bets.model.MatchResult;
 import hu.bets.model.Result;
-import hu.bets.model.UnprocessedMatch;
 import hu.bets.utils.JsonUtils;
 import org.apache.log4j.Logger;
 import org.bson.Document;
@@ -46,7 +45,7 @@ public class MongoBasedScoresServiceDAO implements ScoresServiceDAO {
     public void saveMatch(MatchResult matchResult) {
         String recordJson = JSON_UTILS.toJson(matchResult);
         matchCollection.insertOne(Document.parse(recordJson));
-        cacheResult(matchResult.getMatchId(), matchResult.getResult());
+        cacheResult(matchResult.getResult().getMatchId(), matchResult.getResult());
     }
 
     @Override
@@ -102,7 +101,7 @@ public class MongoBasedScoresServiceDAO implements ScoresServiceDAO {
     }
 
     private Optional<Result> findMatchInDatabase(String matchId) {
-        Document matchResult = matchCollection.find(Filters.eq("matchId", matchId)).first();
+        Document matchResult = matchCollection.find(Filters.eq("result.matchId", matchId)).first();
         if (matchResult == null) {
             return Optional.empty();
         }
@@ -124,14 +123,16 @@ public class MongoBasedScoresServiceDAO implements ScoresServiceDAO {
         LocalDateTime thresholdDate = getCurrentTime().minusHours(RECORD_AGE_THRESHOLD_HOURS);
 
         Bson query = Filters.and(
-                Filters.in("matchId", unprocessedMatches),
+                Filters.in("result.matchId", unprocessedMatches),
                 Filters.gte("matchDate", DateUtil.format(thresholdDate))
         );
 
         FindIterable<Document> documents = matchCollection.find(query);
         List<String> result = new LinkedList<>();
 
-        documents.forEach((Consumer<Document>) document -> result.add(JSON_UTILS.fromJson(document.toJson(), UnprocessedMatch.class).getMatchId()));
+        documents.forEach((Consumer<Document>) document -> {
+            result.add(JSON_UTILS.fromJson(document.toJson(), MatchResult.class).getResult().getMatchId());
+        });
 
         LOGGER.info("Unprocessed messages from the database: " + result);
         return result;

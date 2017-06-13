@@ -99,7 +99,7 @@ public class MongoBasedScoresServiceDAOTest {
 
     @Test
     public void shouldCorrectlySaveThePointsEntryIntoTheDatabase() {
-        sut.savePoints(new Bet("user1", "match1", getResult(), "betId"), 10);
+        sut.savePoints(new Bet("user1", "match1", getResult("match1"), "betId"), 10);
 
         FindIterable<Document> documents = MongoHolder.getScoresCollection().find(Filters.eq("betId", "betId"));
         Document document = documents.first();
@@ -119,8 +119,8 @@ public class MongoBasedScoresServiceDAOTest {
 
     @Test
     public void shouldReturnFailedMatchIdsAfterMatchingCacheWithDb() {
-        sut.saveMatch(new MatchResult("id2", getResult(), sut.getCurrentTime()));
-        sut.saveMatch(new MatchResult("id3", getResult(), sut.getCurrentTime()));
+        sut.saveMatch(new MatchResult(getResult("id2"), sut.getCurrentTime()));
+        sut.saveMatch(new MatchResult(getResult("id3"), sut.getCurrentTime()));
 
         sut.betProcessingFailedFor("id1");
         sut.betProcessingFailedFor("id2");
@@ -140,9 +140,9 @@ public class MongoBasedScoresServiceDAOTest {
     public void shouldGetMatchResultFromTheCacheWhenPresent() {
         MongoCollection matchCollection = Mockito.mock(MongoCollection.class);
         sut = new FakeMongoBasedScoresServiceDAO(matchCollection, MongoHolder.getScoresCollection(), cacheCollection);
-        sut.saveMatch(new MatchResult("id2", getResult(), sut.getCurrentTime()));
+        sut.saveMatch(new MatchResult(getResult("id2"), sut.getCurrentTime()));
 
-        assertEquals(Optional.of(getResult()), sut.getResult("id2"));
+        assertEquals(Optional.of(getResult("id2")), sut.getResult("id2"));
 
         verify(matchCollection).insertOne(any(Document.class));
         verify(matchCollection, never()).find(Bson.class);
@@ -152,14 +152,14 @@ public class MongoBasedScoresServiceDAOTest {
     public void shouldGetMatchResultFromTheDbWhenCacheMiss() {
         Jedis cacheCollection = Mockito.mock(Jedis.class);
         sut = new FakeMongoBasedScoresServiceDAO(MongoHolder.getMatchCollection(), MongoHolder.getScoresCollection(), cacheCollection);
-        sut.saveMatch(new MatchResult("id2", getResult(), sut.getCurrentTime()));
+        sut.saveMatch(new MatchResult(getResult("id2"), sut.getCurrentTime()));
 
         when(cacheCollection.get("id2")).thenReturn(null);
-        assertEquals(Optional.of(getResult()), sut.getResult("id2"));
+        assertEquals(Optional.of(getResult("id2")), sut.getResult("id2"));
     }
 
-    private Result getResult() {
-        return new Result("comp1", "ht", "at", 1, 2);
+    private Result getResult(String matchId) {
+        return new Result(matchId, "comp1", "ht", "at", 1, 2);
     }
 
     class FakeMongoBasedScoresServiceDAO extends MongoBasedScoresServiceDAO {

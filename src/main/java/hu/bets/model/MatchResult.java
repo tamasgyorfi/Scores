@@ -11,30 +11,22 @@ public class MatchResult {
 
     private static final ZoneId ZONE_ID = ZoneId.of("Europe/London");
 
-    private final String matchId;
     private final String matchDate;
     private final Result result;
 
     private MatchResult() {
-        matchId = null;
         matchDate = null;
         result = null;
     }
 
-    public MatchResult(String matchId, Result result, LocalDateTime matchDate) {
-        this.matchId = matchId;
+    public MatchResult(Result result, LocalDateTime matchDate) {
         this.matchDate = DateUtil.format(matchDate);
         this.result = result;
     }
 
     public MatchResult(String matchId, Result result) {
-        this.matchId = matchId;
         this.matchDate = DateUtil.format(LocalDateTime.now(ZONE_ID));
         this.result = result;
-    }
-
-    public String getMatchId() {
-        return matchId;
     }
 
     public String getMatchDate() {
@@ -48,8 +40,7 @@ public class MatchResult {
     @Override
     public String toString() {
         return "MatchResult{" +
-                "matchId='" + matchId + '\'' +
-                ", matchDate=" + matchDate +
+                "matchDate=" + matchDate +
                 ", result=" + result +
                 '}';
     }

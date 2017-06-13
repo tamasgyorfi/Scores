@@ -3,6 +3,7 @@ package hu.bets.web.api;
 import hu.bets.model.MatchResult;
 import hu.bets.points.services.ResultHandlerService;
 import hu.bets.points.services.conversion.ModelConverterService;
+import hu.bets.processor.CommonExecutor;
 import hu.bets.web.model.ResultResponse;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +23,8 @@ public class MatchEndResource {
     private ResultHandlerService resultHandlerService;
     @Autowired
     private ModelConverterService modelConverterService;
+    @Autowired
+    private CommonExecutor commonExecutor;
 
     @GET
     @Path("info")

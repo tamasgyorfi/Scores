@@ -116,12 +116,12 @@ public class BetBatchTaskTest {
     }
 
     private Result getResult() {
-        return new Result(UUID.randomUUID().toString(), "1", "2", 3, 0);
+        return new Result("matchId", UUID.randomUUID().toString(), "1", "2", 3, 0);
     }
 
 
     private Bet getBet(String matchId, String betId) {
-        return new Bet("userId", matchId, new Result("competitionId", "1", "2", 3, 2), betId);
+        return new Bet("userId", matchId, new Result(matchId, "competitionId", "1", "2", 3, 2), betId);
     }
 
     private class FakeBetBatchTask extends BetBatchTask {

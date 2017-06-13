@@ -2,9 +2,10 @@ package hu.bets.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
-@JsonIgnoreProperties(ignoreUnknown=true)
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Result {
 
+    private final String matchId;
     private final String competitionId;
 
     private final String homeTeamId;
@@ -14,6 +15,7 @@ public class Result {
 
     // Needed for JSON deserialization.
     private Result() {
+        matchId = null;
         awayTeamGoals = -1;
         homeTeamGoals = -1;
         awayTeamId = null;
@@ -21,7 +23,8 @@ public class Result {
         competitionId = null;
     }
 
-    public Result(String competitionId, String homeTeamId, String awayTeamId, int homeTeamGoals, int awayTeamGoals) {
+    public Result(String matchId, String competitionId, String homeTeamId, String awayTeamId, int homeTeamGoals, int awayTeamGoals) {
+        this.matchId = matchId;
         this.competitionId = competitionId;
         this.homeTeamId = homeTeamId;
         this.awayTeamId = awayTeamId;
@@ -49,6 +52,10 @@ public class Result {
         return competitionId;
     }
 
+    public String getMatchId() {
+        return matchId;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
@@ -58,6 +65,7 @@ public class Result {
 
         if (homeTeamGoals != result.homeTeamGoals) return false;
         if (awayTeamGoals != result.awayTeamGoals) return false;
+        if (matchId != null ? !matchId.equals(result.matchId) : result.matchId != null) return false;
         if (competitionId != null ? !competitionId.equals(result.competitionId) : result.competitionId != null)
             return false;
         if (homeTeamId != null ? !homeTeamId.equals(result.homeTeamId) : result.homeTeamId != null) return false;
@@ -66,7 +74,8 @@ public class Result {
 
     @Override
     public int hashCode() {
-        int result = competitionId != null ? competitionId.hashCode() : 0;
+        int result = matchId != null ? matchId.hashCode() : 0;
+        result = 31 * result + (competitionId != null ? competitionId.hashCode() : 0);
         result = 31 * result + (homeTeamId != null ? homeTeamId.hashCode() : 0);
         result = 31 * result + (awayTeamId != null ? awayTeamId.hashCode() : 0);
         result = 31 * result + homeTeamGoals;
@@ -77,7 +86,8 @@ public class Result {
     @Override
     public String toString() {
         return "Result{" +
-                "competitionId='" + competitionId + '\'' +
+                "matchId='" + matchId + '\'' +
+                ", competitionId='" + competitionId + '\'' +
                 ", homeTeamId='" + homeTeamId + '\'' +
                 ", awayTeamId='" + awayTeamId + '\'' +
                 ", homeTeamGoals=" + homeTeamGoals +

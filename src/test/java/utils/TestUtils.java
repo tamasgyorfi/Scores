@@ -10,6 +10,7 @@ public class TestUtils {
     public static final String CORRECT_MATCH_END_PAYLOAD = "{  \n" +
             "   \"matchResult\":{  \n" +
             "      \"result\":{  \n" +
+            "         \"matchId\":\"match100\",\n" +
             "         \"competitionId\":\"compId100\",\n" +
             "         \"homeTeamId\":\"team1\",\n" +
             "         \"awayTeamId\":\"team2\",\n" +
@@ -22,7 +23,7 @@ public class TestUtils {
 
 
     public static MatchResult getRecord(LocalDateTime matchDate, String matchId) {
-        return new MatchResult(matchId, new Result("1", "1", "1", 1, 1), matchDate);
+        return new MatchResult(new Result(matchId, "1", "1", "1", 1, 1), matchDate);
     }
 
 }
