@@ -30,6 +30,7 @@ import org.junit.BeforeClass;
 import org.junit.Test;
 import redis.clients.jedis.Jedis;
 
+import javax.ws.rs.core.Response;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Arrays;
@@ -72,7 +73,7 @@ public class SaveMatchIntegrationTest {
         HttpResponse httpResponse = When.iMakeAPostRequest(endpoint, "{\"payload\":\"none\"}");
         ResultResponse resultResponse = new Gson().fromJson(EntityUtils.toString(httpResponse.getEntity()), ResultResponse.class);
 
-        assertEquals(500, resultResponse.getResponseCode());
+        assertEquals(Response.Status.INTERNAL_SERVER_ERROR, resultResponse.getResponseCode());
         assertTrue(resultResponse.getError().contains("org.everit.json.schema.ValidationException"));
         assertEquals("", resultResponse.getResponsePayload());
     }
@@ -86,7 +87,7 @@ public class SaveMatchIntegrationTest {
         HttpResponse httpResponse = When.iMakeAPostRequest(endpoint, CORRECT_MATCH_END_PAYLOAD);
         ResultResponse resultResponse = new Gson().fromJson(EntityUtils.toString(httpResponse.getEntity()), ResultResponse.class);
 
-        assertEquals(200, resultResponse.getResponseCode());
+        assertEquals(Response.Status.ACCEPTED, resultResponse.getResponseCode());
         assertEquals("", resultResponse.getError());
         assertEquals("Match results saved.", resultResponse.getResponsePayload());
     }

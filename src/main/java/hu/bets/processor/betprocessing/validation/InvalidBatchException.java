@@ -1,4 +1,4 @@
-package hu.bets.messaging.processing.validation;
+package hu.bets.processor.betprocessing.validation;
 
 public class InvalidBatchException extends RuntimeException {
 

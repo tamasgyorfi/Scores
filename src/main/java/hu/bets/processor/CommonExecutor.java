@@ -1,20 +1,18 @@
-package hu.bets.messaging.processing;
+package hu.bets.processor;
 
-import hu.bets.messaging.processing.processor.BetBatchProcessor;
-import hu.bets.messaging.processing.processor.BetBatchProcessorTask;
-import hu.bets.messaging.processing.validation.BetBatchValidator;
-import hu.bets.model.ProcessingResult;
+import hu.bets.processor.betprocessing.BetBatchProcessor;
+import hu.bets.processor.betprocessing.BetBatchProcessorTask;
+import hu.bets.processor.betprocessing.validation.BetBatchValidator;
 
-import java.util.Set;
 import java.util.concurrent.CompletionService;
 
-public class BetsBatchExecutor {
+public class CommonExecutor {
 
     private CompletionService<ProcessingResult> executor;
     private BetBatchProcessor betBatchProcessor;
     private BetBatchValidator defaultBetBatchValidator;
 
-    public BetsBatchExecutor(CompletionService<ProcessingResult> executor, BetBatchProcessor betBatchProcessor, BetBatchValidator defaultBetBatchValidator) {
+    public CommonExecutor(CompletionService<ProcessingResult> executor, BetBatchProcessor betBatchProcessor, BetBatchValidator defaultBetBatchValidator) {
         this.executor = executor;
         this.betBatchProcessor = betBatchProcessor;
         this.defaultBetBatchValidator = defaultBetBatchValidator;

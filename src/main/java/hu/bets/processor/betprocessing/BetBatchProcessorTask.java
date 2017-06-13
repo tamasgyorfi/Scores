@@ -1,13 +1,13 @@
-package hu.bets.messaging.processing.processor;
+package hu.bets.processor.betprocessing;
 
-import hu.bets.messaging.processing.validation.BetBatchValidator;
-import hu.bets.messaging.processing.validation.InvalidBatchException;
+import hu.bets.processor.Type;
+import hu.bets.processor.betprocessing.validation.BetBatchValidator;
+import hu.bets.processor.betprocessing.validation.InvalidBatchException;
 import hu.bets.model.BetsBatch;
-import hu.bets.model.ProcessingResult;
+import hu.bets.processor.ProcessingResult;
 import hu.bets.utils.JsonUtils;
 import org.apache.log4j.Logger;
 
-import java.util.Set;
 import java.util.concurrent.Callable;
 
 public class BetBatchProcessorTask implements Callable<ProcessingResult> {
@@ -25,11 +25,11 @@ public class BetBatchProcessorTask implements Callable<ProcessingResult> {
     }
 
     @Override
-    public ProcessingResult<Set<String>> call() {
+    public ProcessingResult call() {
         try {
             BetsBatch betsBatch = getBatch(batchPayload);
             defaultBetBatchValidator.validateBatch(betsBatch);
-            return new ProcessingResult(betBatchProcessor.processMatches(betsBatch), ProcessingResult.Type.ACKNOWLEDGE_REQUEST);
+            return new ProcessingResult(betBatchProcessor.processMatches(betsBatch), Type.ACKNOWLEDGE_REQUEST);
         } catch (InvalidBatchException e) {
             LOGGER.error("Unable to process batch.", e);
         }

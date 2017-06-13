@@ -8,6 +8,7 @@ import org.springframework.stereotype.Component;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 @Component
 @Path("/scores/football/v1")
@@ -33,9 +34,9 @@ public class MatchEndResource {
         LOGGER.info("Post request invoked. " + matchId +": " +resultRequest);
         try {
             resultHandlerService.saveMatchResult(matchId, resultRequest);
-            return ResultResponse.success(200, "Match results saved.");
+            return ResultResponse.success(Response.Status.ACCEPTED, "Match results saved.");
         } catch (Exception e) {
-            return ResultResponse.error(500, e.getMessage());
+            return ResultResponse.error(Response.Status.INTERNAL_SERVER_ERROR, e.getMessage());
         }
     }
 }

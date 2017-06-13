@@ -5,12 +5,12 @@ import com.rabbitmq.client.Consumer;
 import hu.bets.common.config.CommonMessagingConfig;
 import hu.bets.common.messaging.DefaultMessageListener;
 import hu.bets.common.messaging.MessageListener;
-import hu.bets.messaging.processing.BetsBatchExecutor;
-import hu.bets.messaging.processing.processor.BetBatchProcessor;
-import hu.bets.messaging.processing.validation.BetBatchValidator;
+import hu.bets.processor.CommonExecutor;
+import hu.bets.processor.betprocessing.BetBatchProcessor;
+import hu.bets.processor.betprocessing.validation.BetBatchValidator;
 import hu.bets.messaging.receiver.MessageConsumer;
 import hu.bets.messaging.sender.MessageSender;
-import hu.bets.model.ProcessingResult;
+import hu.bets.processor.ProcessingResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -30,8 +30,8 @@ public class MessagingConfig {
     private Channel receiverChannel;
 
     @Bean
-    public Consumer consumer(BetsBatchExecutor betsBatchExecutor) {
-        return new MessageConsumer(receiverChannel, betsBatchExecutor);
+    public Consumer consumer(CommonExecutor commonExecutor) {
+        return new MessageConsumer(receiverChannel, commonExecutor);
     }
 
     @Bean
@@ -45,7 +45,7 @@ public class MessagingConfig {
     }
 
     @Bean
-    public BetsBatchExecutor getBetsBatchExecutor(CompletionService<ProcessingResult> completionService, BetBatchProcessor processor, BetBatchValidator validator) {
-        return new BetsBatchExecutor(completionService, processor, validator);
+    public CommonExecutor getBetsBatchExecutor(CompletionService<ProcessingResult> completionService, BetBatchProcessor processor, BetBatchValidator validator) {
+        return new CommonExecutor(completionService, processor, validator);
     }
 }

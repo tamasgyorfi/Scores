@@ -2,12 +2,11 @@ package hu.bets.messaging.sender;
 
 import com.rabbitmq.client.Channel;
 import hu.bets.messaging.MessagingConstants;
-import hu.bets.model.ProcessingResult;
+import hu.bets.processor.ProcessingResult;
 import hu.bets.utils.JsonUtils;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
-import java.util.Optional;
 import java.util.concurrent.CompletionService;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;

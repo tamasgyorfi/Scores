@@ -1,4 +1,4 @@
-package hu.bets.messaging.processing.processor;
+package hu.bets.processor.betprocessing;
 
 import hu.bets.model.Bet;
 import hu.bets.model.BetsBatch;

@@ -1,4 +1,4 @@
-package hu.bets.messaging.processing.processor;
+package hu.bets.processor.betprocessing;
 
 public class BatchProcessingException extends RuntimeException {
 

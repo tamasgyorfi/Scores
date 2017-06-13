@@ -1,13 +1,13 @@
-package hu.bets.messaging.processing;
+package hu.bets.processor.processing;
 
 import com.google.common.collect.Sets;
 import hu.bets.common.util.hash.HashGenerator;
-import hu.bets.messaging.processing.processor.BetBatchProcessorTask;
-import hu.bets.messaging.processing.processor.DefaultBetBatchProcessor;
-import hu.bets.messaging.processing.validation.DefaultBetBatchValidator;
+import hu.bets.processor.betprocessing.BetBatchProcessorTask;
+import hu.bets.processor.betprocessing.DefaultBetBatchProcessor;
+import hu.bets.processor.betprocessing.validation.DefaultBetBatchValidator;
 import hu.bets.model.Bet;
 import hu.bets.model.BetsBatch;
-import hu.bets.model.ProcessingResult;
+import hu.bets.processor.ProcessingResult;
 import hu.bets.model.Result;
 import hu.bets.points.dbaccess.ScoresServiceDAO;
 import hu.bets.points.services.points.PointsCalculatorService;
@@ -48,7 +48,7 @@ public class BetBatchProcessorTaskTest {
     public void shouldDoNothingIfThePayloadIsNotParsable() throws Exception {
         when(jsonUtils.fromJson(FAKE_PAYLOAD, BetsBatch.class)).thenThrow(new IllegalArgumentException("aa"));
 
-        ProcessingResult<Set<String>> result = sut.call();
+        ProcessingResult result = sut.call();
         assertEquals(null, result.getPayload());
     }
 
@@ -61,7 +61,7 @@ public class BetBatchProcessorTaskTest {
         when(jsonUtils.fromJson(FAKE_PAYLOAD, BetsBatch.class)).thenReturn(betsBatch);
         when(hashGenerator.getHash(bets)).thenReturn("different hash");
 
-        ProcessingResult<Set<String>> result = sut.call();
+        ProcessingResult result = sut.call();
         assertEquals(null, result.getPayload());
     }
 
@@ -74,7 +74,7 @@ public class BetBatchProcessorTaskTest {
         when(jsonUtils.fromJson(FAKE_PAYLOAD, BetsBatch.class)).thenReturn(betsBatch);
         when(hashGenerator.getHash(bets)).thenReturn(HASH);
 
-        ProcessingResult<Set<String>> result = sut.call();
+        ProcessingResult result = sut.call();
         assertEquals(null, result.getPayload());
     }
 
@@ -107,7 +107,7 @@ public class BetBatchProcessorTaskTest {
 
         doThrow(new IllegalArgumentException()).when(dataAccess).savePoints(bets.get(3), 10);
 
-        ProcessingResult<Set<String>> result = sut.call();
+        ProcessingResult result = sut.call();
 
 
         assertEquals(1, result.getPayload().size());
