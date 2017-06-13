@@ -29,7 +29,6 @@ public class DefaultResultHandlerService implements ResultHandlerService {
             LOGGER.info("MatchResult saved to the database. " + matchResult);
 
         } catch (IllegalJsonException | DatabaseException e) {
-            LOGGER.error("--->", e);
             throw new MatchResultProcessingException(e);
         }
     }

@@ -1,6 +1,8 @@
 package hu.bets.web.api;
 
+import hu.bets.model.MatchResult;
 import hu.bets.points.services.ResultHandlerService;
+import hu.bets.points.services.conversion.ModelConverterService;
 import hu.bets.web.model.ResultResponse;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,6 +20,8 @@ public class MatchEndResource {
 
     @Autowired
     private ResultHandlerService resultHandlerService;
+    @Autowired
+    private ModelConverterService modelConverterService;
 
     @GET
     @Path("info")
@@ -31,12 +35,19 @@ public class MatchEndResource {
     @Produces(MediaType.APPLICATION_JSON)
     public ResultResponse postResult(@PathParam("matchId") String matchId, String resultRequest) {
 
-        LOGGER.info("Post request invoked. " + matchId +": " +resultRequest);
+        LOGGER.info("Post request invoked. " + matchId + ": " + resultRequest);
         try {
             resultHandlerService.saveMatchResult(matchId, resultRequest);
             return ResultResponse.success(Response.Status.ACCEPTED, "Match results saved.");
         } catch (Exception e) {
             return ResultResponse.error(Response.Status.INTERNAL_SERVER_ERROR, e.getMessage());
         }
+    }
+
+    private MatchResult validateAndConvert(String matchId, String resultRequest) {
+        MatchResult matchResult = modelConverterService.convert(matchId, resultRequest);
+        LOGGER.info("MatchResult resulting from conversion: " + matchResult);
+
+        return matchResult;
     }
 }
