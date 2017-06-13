@@ -13,10 +13,7 @@ import hu.bets.config.ApplicationConfig;
 import hu.bets.config.MessagingConfig;
 import hu.bets.config.WebConfig;
 import hu.bets.messaging.MessagingConstants;
-import hu.bets.model.Bet;
-import hu.bets.model.BetBatch;
-import hu.bets.model.MatchResult;
-import hu.bets.model.Result;
+import hu.bets.model.*;
 import hu.bets.points.dbaccess.MongoBasedScoresServiceDAO;
 import hu.bets.steps.Given;
 import hu.bets.steps.When;
@@ -145,6 +142,8 @@ public class SaveMatchIntegrationTest {
 
         MatchResult result1 = new MatchResult("match100", new Result("compId100", "team1", "team2", 1, 1));
         MatchResult result2 = new MatchResult("match200", new Result("compId100", "team3", "team9", 3, 3));
+
+        System.out.println("-->"+new Gson().toJson(new SecureMatchResult(result1, "ashdj")));
 
         BetBatch betBatch = new BetBatch(3, bets, new MD5HashGenerator().getHash(bets));
 

@@ -1,46 +1,60 @@
 {
-  "$schema": "http://json-schema.org/schema#",
-  "additionalProperties": true,
-  "definitions": {},
-  "id": "matchResult-request-schema",
-  "properties": {
-    "awayTeamGoals": {
-      "id": "/properties/awayTeamGoals",
-      "maximum": 20,
-      "minimum": 0,
-      "type": "integer"
-    },
-    "awayTeamId": {
-      "id": "/properties/awayTeamId",
-      "maxLength": 25,
-      "minLength": 1,
-      "type": "string"
-    },
-    "competitionId": {
-      "id": "/properties/competitionId",
-      "maxLength": 25,
-      "minLength": 1,
-      "type": "string"
-    },
-    "homeTeamGoals": {
-      "id": "/properties/homeTeamGoals",
-      "maximum": 20,
-      "minimum": 0,
-      "type": "integer"
-    },
-    "homeTeamId": {
-      "id": "/properties/homeTeamId",
-      "maxLength": 25,
-      "minLength": 1,
-      "type": "string"
+  "$schema":"http://json-schema.org/schema#",
+  "additionalProperties":true,
+  "definitions":{
+
+  },
+  "id":"matchResult-request-schema",
+  "matchResult":{
+    "properties":{
+      "awayTeamGoals":{
+        "id":"/properties/awayTeamGoals",
+        "maximum":20,
+        "minimum":0,
+        "type":"integer"
+      },
+      "awayTeamId":{
+        "id":"/properties/awayTeamId",
+        "maxLength":25,
+        "minLength":1,
+        "type":"string"
+      },
+      "competitionId":{
+        "id":"/properties/competitionId",
+        "maxLength":25,
+        "minLength":1,
+        "type":"string"
+      },
+      "homeTeamGoals":{
+        "id":"/properties/homeTeamGoals",
+        "maximum":20,
+        "minimum":0,
+        "type":"integer"
+      },
+      "homeTeamId":{
+        "id":"/properties/homeTeamId",
+        "maxLength":25,
+        "minLength":1,
+        "type":"string"
+      },
+      "securityToken":{
+        "id":"/properties/securityToken",
+        "maxLength":25,
+        "minLength":1,
+        "type":"string"
+      },
+      "required":[
+        "awayTeamId",
+        "awayTeamGoals",
+        "competitionId",
+        "homeTeamId",
+        "homeTeamGoals"
+      ]
     }
   },
-  "required": [
-    "awayTeamId",
-    "awayTeamGoals",
-    "competitionId",
-    "homeTeamId",
-    "homeTeamGoals"
+  "required":[
+    "matchResult",
+    "securityToken"
   ],
-  "type": "object"
+  "type":"object"
 }
