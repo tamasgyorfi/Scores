@@ -5,7 +5,7 @@ import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import hu.bets.model.Bet;
-import hu.bets.model.FinalMatchResult;
+import hu.bets.model.MatchResult;
 import hu.bets.model.Result;
 import hu.bets.model.UnprocessedMatch;
 import hu.bets.utils.JsonUtils;
@@ -43,10 +43,10 @@ public class MongoBasedScoresServiceDAO implements ScoresServiceDAO {
     }
 
     @Override
-    public void saveMatch(FinalMatchResult finalMatchResult) {
-        String recordJson = JSON_UTILS.toJson(finalMatchResult);
+    public void saveMatch(MatchResult matchResult) {
+        String recordJson = JSON_UTILS.toJson(matchResult);
         matchCollection.insertOne(Document.parse(recordJson));
-        cacheResult(finalMatchResult.getMatchId(), finalMatchResult.getResult());
+        cacheResult(matchResult.getMatchId(), matchResult.getResult());
     }
 
     @Override
@@ -107,7 +107,7 @@ public class MongoBasedScoresServiceDAO implements ScoresServiceDAO {
             return Optional.empty();
         }
 
-        return Optional.of(JSON_UTILS.fromJson(matchResult.toJson(), FinalMatchResult.class).getResult());
+        return Optional.of(JSON_UTILS.fromJson(matchResult.toJson(), MatchResult.class).getResult());
     }
 
     private Optional<Result> findMatchInCache(String matchId) {

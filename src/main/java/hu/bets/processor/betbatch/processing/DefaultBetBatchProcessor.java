@@ -1,7 +1,7 @@
-package hu.bets.processor.betprocessing;
+package hu.bets.processor.betbatch.processing;
 
 import hu.bets.model.Bet;
-import hu.bets.model.BetsBatch;
+import hu.bets.model.BetBatch;
 import hu.bets.model.Result;
 import hu.bets.points.dbaccess.ScoresServiceDAO;
 import hu.bets.points.services.points.PointsCalculatorService;
@@ -22,12 +22,12 @@ public class DefaultBetBatchProcessor implements BetBatchProcessor {
         this.pointsCalculatorService = pointsCalculatorService;
     }
 
-    public Set<String> processMatches(BetsBatch betsBatch) {
+    public Set<String> process(BetBatch betBatch) {
 
         Set<String> unprocessedMatches = new HashSet<>();
         Set<String> processedBets = new HashSet<>();
 
-        for (Bet bet : betsBatch.getBets()) {
+        for (Bet bet : betBatch.getBets()) {
             try {
                 processOneMatch(bet);
                 processedBets.add(bet.getBetId());

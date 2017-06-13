@@ -2,11 +2,11 @@ package hu.bets.processor.processing;
 
 import com.google.common.collect.Sets;
 import hu.bets.common.util.hash.HashGenerator;
-import hu.bets.processor.betprocessing.BetBatchProcessorTask;
-import hu.bets.processor.betprocessing.DefaultBetBatchProcessor;
-import hu.bets.processor.betprocessing.validation.DefaultBetBatchValidator;
+import hu.bets.model.BetBatch;
+import hu.bets.processor.betbatch.BetBatchTask;
+import hu.bets.processor.betbatch.processing.DefaultBetBatchProcessor;
+import hu.bets.processor.betbatch.validation.DefaultBetBatchValidator;
 import hu.bets.model.Bet;
-import hu.bets.model.BetsBatch;
 import hu.bets.processor.ProcessingResult;
 import hu.bets.model.Result;
 import hu.bets.points.dbaccess.ScoresServiceDAO;
@@ -24,11 +24,11 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
 
 @RunWith(MockitoJUnitRunner.class)
-public class BetBatchProcessorTaskTest {
+public class BetBatchTaskTest {
 
     private static final String FAKE_PAYLOAD = "Fake";
     private static final String HASH = "HASH";
-    private BetBatchProcessorTask sut;
+    private BetBatchTask sut;
 
     @Mock
     private JsonUtils jsonUtils;
@@ -41,12 +41,12 @@ public class BetBatchProcessorTaskTest {
 
     @Before
     public void setup() {
-        sut = new FakeBetBatchProcessorTask(FAKE_PAYLOAD, pointsCalculatorService, dataAccess, hashGenerator);
+        sut = new FakeBetBatchTask(FAKE_PAYLOAD, pointsCalculatorService, dataAccess, hashGenerator);
     }
 
     @Test
     public void shouldDoNothingIfThePayloadIsNotParsable() throws Exception {
-        when(jsonUtils.fromJson(FAKE_PAYLOAD, BetsBatch.class)).thenThrow(new IllegalArgumentException("aa"));
+        when(jsonUtils.fromJson(FAKE_PAYLOAD, BetBatch.class)).thenThrow(new IllegalArgumentException("aa"));
 
         ProcessingResult result = sut.call();
         assertEquals(null, result.getPayload());
@@ -56,9 +56,9 @@ public class BetBatchProcessorTaskTest {
     public void shouldDoNothingWhenHashCheckFails() throws Exception {
         List<Bet> bets = new ArrayList<>();
         bets.add(getBet("1", "99"));
-        BetsBatch betsBatch = new BetsBatch(1, bets, HASH);
+        BetBatch betBatch = new BetBatch(1, bets, HASH);
 
-        when(jsonUtils.fromJson(FAKE_PAYLOAD, BetsBatch.class)).thenReturn(betsBatch);
+        when(jsonUtils.fromJson(FAKE_PAYLOAD, BetBatch.class)).thenReturn(betBatch);
         when(hashGenerator.getHash(bets)).thenReturn("different hash");
 
         ProcessingResult result = sut.call();
@@ -69,9 +69,9 @@ public class BetBatchProcessorTaskTest {
     public void shouldDoNothingWhenArityCheckFails() throws Exception {
         List<Bet> bets = new ArrayList<>();
         bets.add(getBet("1", "99"));
-        BetsBatch betsBatch = new BetsBatch(2, bets, HASH);
+        BetBatch betBatch = new BetBatch(2, bets, HASH);
 
-        when(jsonUtils.fromJson(FAKE_PAYLOAD, BetsBatch.class)).thenReturn(betsBatch);
+        when(jsonUtils.fromJson(FAKE_PAYLOAD, BetBatch.class)).thenReturn(betBatch);
         when(hashGenerator.getHash(bets)).thenReturn(HASH);
 
         ProcessingResult result = sut.call();
@@ -86,13 +86,13 @@ public class BetBatchProcessorTaskTest {
         bets.add(getBet("3", "99"));
         bets.add(getBet("4", "96"));
         bets.add(getBet("5", "95"));
-        BetsBatch betsBatch = new BetsBatch(5, bets, HASH);
+        BetBatch betBatch = new BetBatch(5, bets, HASH);
 
         Result result1 = getResult();
         Result result2 = getResult();
         Result result3 = getResult();
 
-        when(jsonUtils.fromJson(FAKE_PAYLOAD, BetsBatch.class)).thenReturn(betsBatch);
+        when(jsonUtils.fromJson(FAKE_PAYLOAD, BetBatch.class)).thenReturn(betBatch);
         when(hashGenerator.getHash(bets)).thenReturn(HASH);
 
         when(dataAccess.getResult("1")).thenReturn(Optional.empty());
@@ -124,10 +124,10 @@ public class BetBatchProcessorTaskTest {
         return new Bet("userId", matchId, new Result("competitionId", "1", "2", 3, 2), betId);
     }
 
-    private class FakeBetBatchProcessorTask extends BetBatchProcessorTask {
+    private class FakeBetBatchTask extends BetBatchTask {
 
-        public FakeBetBatchProcessorTask(String batchPayload, PointsCalculatorService pointsCalculatorService, ScoresServiceDAO dataAccess, HashGenerator hashGenerator) {
-            super(batchPayload, new DefaultBetBatchProcessor(dataAccess, pointsCalculatorService), new DefaultBetBatchValidator(hashGenerator));
+        public FakeBetBatchTask(String batchPayload, PointsCalculatorService pointsCalculatorService, ScoresServiceDAO dataAccess, HashGenerator hashGenerator) {
+            super(batchPayload, new DefaultBetBatchValidator(hashGenerator), new DefaultBetBatchProcessor(dataAccess, pointsCalculatorService));
         }
 
         @Override

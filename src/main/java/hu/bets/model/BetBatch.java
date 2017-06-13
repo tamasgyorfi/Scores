@@ -6,18 +6,18 @@ import com.fasterxml.jackson.databind.annotation.JsonSerialize;
 import java.util.Collections;
 import java.util.List;
 
-public class BetsBatch {
+public class BetBatch {
 
     private int numberOfElements;
     @JsonProperty("userBets")
     private List<Bet> bets;
     private String hash;
 
-    private BetsBatch() {
+    private BetBatch() {
 
     }
 
-    public BetsBatch(int numberOfElements, List<Bet> bets, String hash) {
+    public BetBatch(int numberOfElements, List<Bet> bets, String hash) {
         this.numberOfElements = numberOfElements;
         this.bets = bets;
         this.hash = hash;

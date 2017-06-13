@@ -1,13 +1,24 @@
 package hu.bets.processor.betrequest;
 
-import hu.bets.processor.ProcessingResult;
+import hu.bets.model.MatchResult;
+import hu.bets.processor.*;
 
-import java.util.concurrent.Callable;
+public class BetRequestTask extends AbstractProcessorTask<MatchResult> {
 
-public class BetRequestTask implements Callable<ProcessingResult> {
+    private String payload;
+
+    public BetRequestTask(String payload, Validator<MatchResult> validator, Processor<MatchResult> processor) {
+        super(payload, validator, processor);
+        this.payload = payload;
+    }
 
     @Override
-    public ProcessingResult call() throws Exception {
+    public MatchResult preProcess() {
         return null;
+    }
+
+    @Override
+    public Type getType() {
+        return Type.BETS_REQUEST;
     }
 }

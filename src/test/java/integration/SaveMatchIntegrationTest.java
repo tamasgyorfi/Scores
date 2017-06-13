@@ -14,8 +14,8 @@ import hu.bets.config.MessagingConfig;
 import hu.bets.config.WebConfig;
 import hu.bets.messaging.MessagingConstants;
 import hu.bets.model.Bet;
-import hu.bets.model.BetsBatch;
-import hu.bets.model.FinalMatchResult;
+import hu.bets.model.BetBatch;
+import hu.bets.model.MatchResult;
 import hu.bets.model.Result;
 import hu.bets.points.dbaccess.MongoBasedScoresServiceDAO;
 import hu.bets.steps.Given;
@@ -143,16 +143,16 @@ public class SaveMatchIntegrationTest {
 
         MongoCollection matchCollection = FakeDatabaseConfig.FongoResultsCollectionHolder.getMatchResultCollection();
 
-        FinalMatchResult result1 = new FinalMatchResult("match100", new Result("compId100", "team1", "team2", 1, 1));
-        FinalMatchResult result2 = new FinalMatchResult("match200", new Result("compId100", "team3", "team9", 3, 3));
+        MatchResult result1 = new MatchResult("match100", new Result("compId100", "team1", "team2", 1, 1));
+        MatchResult result2 = new MatchResult("match200", new Result("compId100", "team3", "team9", 3, 3));
 
-        BetsBatch betsBatch = new BetsBatch(3, bets, new MD5HashGenerator().getHash(bets));
+        BetBatch betBatch = new BetBatch(3, bets, new MD5HashGenerator().getHash(bets));
 
         cache.select(DB_INDEX);
         cache.set("match100", new JsonUtils().toJson(result1.getResult()));
         matchCollection.insertOne(Document.parse(new JsonUtils().toJson(result2)));
 
-        senderChannel.basicPublish(MessagingConstants.EXCHANGE_NAME, MessagingConstants.BETS_TO_SCORES_ROUTE, null, new JsonUtils().toJson(betsBatch).getBytes());
+        senderChannel.basicPublish(MessagingConstants.EXCHANGE_NAME, MessagingConstants.BETS_TO_SCORES_ROUTE, null, new JsonUtils().toJson(betBatch).getBytes());
 
         TimeUnit.SECONDS.sleep(WAIT_TIME_SECONDS);
 

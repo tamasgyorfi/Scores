@@ -7,7 +7,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class FinalMatchResult {
+public class MatchResult {
 
     private static final ZoneId ZONE_ID = ZoneId.of("Europe/London");
 
@@ -15,19 +15,19 @@ public class FinalMatchResult {
     private final String matchDate;
     private final Result result;
 
-    private FinalMatchResult() {
+    private MatchResult() {
         matchId = null;
         matchDate = null;
         result = null;
     }
 
-    public FinalMatchResult(String matchId, Result result, LocalDateTime matchDate) {
+    public MatchResult(String matchId, Result result, LocalDateTime matchDate) {
         this.matchId = matchId;
         this.matchDate = DateUtil.format(matchDate);
         this.result = result;
     }
 
-    public FinalMatchResult(String matchId, Result result) {
+    public MatchResult(String matchId, Result result) {
         this.matchId = matchId;
         this.matchDate = DateUtil.format(LocalDateTime.now(ZONE_ID));
         this.result = result;
@@ -47,7 +47,7 @@ public class FinalMatchResult {
 
     @Override
     public String toString() {
-        return "FinalMatchResult{" +
+        return "MatchResult{" +
                 "matchId='" + matchId + '\'' +
                 ", matchDate=" + matchDate +
                 ", result=" + result +

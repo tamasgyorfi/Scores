@@ -1,7 +1,7 @@
 package hu.bets.points.dbaccess;
 
 import hu.bets.model.Bet;
-import hu.bets.model.FinalMatchResult;
+import hu.bets.model.MatchResult;
 import hu.bets.model.Result;
 
 import java.util.Collection;
@@ -13,9 +13,9 @@ public interface ScoresServiceDAO {
     /**
      * Saves a match result for future processing.
      *
-     * @param finalMatchResult
+     * @param matchResult
      */
-    void saveMatch(FinalMatchResult finalMatchResult);
+    void saveMatch(MatchResult matchResult);
 
     /**
      * Marks the match identified by matchId as incomplete for bets processing.

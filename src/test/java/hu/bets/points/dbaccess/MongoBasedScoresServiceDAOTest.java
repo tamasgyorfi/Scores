@@ -10,7 +10,7 @@ import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import com.mongodb.client.model.Filters;
 import hu.bets.model.Bet;
-import hu.bets.model.FinalMatchResult;
+import hu.bets.model.MatchResult;
 import hu.bets.model.Result;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -65,11 +65,11 @@ public class MongoBasedScoresServiceDAOTest {
     @Test
     public void shouldSaveMatchResultToTheDatabase() {
         MongoCollection matchCollection = Mockito.mock(MongoCollection.class);
-        FinalMatchResult finalMatchResult = getRecord(LocalDateTime.now(), "22");
+        MatchResult matchResult = getRecord(LocalDateTime.now(), "22");
         sut = new MongoBasedScoresServiceDAO(matchCollection, null, cacheCollection);
-        sut.saveMatch(finalMatchResult);
+        sut.saveMatch(matchResult);
 
-        String json = new Gson().toJson(finalMatchResult);
+        String json = new Gson().toJson(matchResult);
         verify(matchCollection).insertOne(Document.parse(json));
     }
 
@@ -119,8 +119,8 @@ public class MongoBasedScoresServiceDAOTest {
 
     @Test
     public void shouldReturnFailedMatchIdsAfterMatchingCacheWithDb() {
-        sut.saveMatch(new FinalMatchResult("id2", getResult(), sut.getCurrentTime()));
-        sut.saveMatch(new FinalMatchResult("id3", getResult(), sut.getCurrentTime()));
+        sut.saveMatch(new MatchResult("id2", getResult(), sut.getCurrentTime()));
+        sut.saveMatch(new MatchResult("id3", getResult(), sut.getCurrentTime()));
 
         sut.betProcessingFailedFor("id1");
         sut.betProcessingFailedFor("id2");
@@ -140,7 +140,7 @@ public class MongoBasedScoresServiceDAOTest {
     public void shouldGetMatchResultFromTheCacheWhenPresent() {
         MongoCollection matchCollection = Mockito.mock(MongoCollection.class);
         sut = new FakeMongoBasedScoresServiceDAO(matchCollection, MongoHolder.getScoresCollection(), cacheCollection);
-        sut.saveMatch(new FinalMatchResult("id2", getResult(), sut.getCurrentTime()));
+        sut.saveMatch(new MatchResult("id2", getResult(), sut.getCurrentTime()));
 
         assertEquals(Optional.of(getResult()), sut.getResult("id2"));
 
@@ -152,7 +152,7 @@ public class MongoBasedScoresServiceDAOTest {
     public void shouldGetMatchResultFromTheDbWhenCacheMiss() {
         Jedis cacheCollection = Mockito.mock(Jedis.class);
         sut = new FakeMongoBasedScoresServiceDAO(MongoHolder.getMatchCollection(), MongoHolder.getScoresCollection(), cacheCollection);
-        sut.saveMatch(new FinalMatchResult("id2", getResult(), sut.getCurrentTime()));
+        sut.saveMatch(new MatchResult("id2", getResult(), sut.getCurrentTime()));
 
         when(cacheCollection.get("id2")).thenReturn(null);
         assertEquals(Optional.of(getResult()), sut.getResult("id2"));

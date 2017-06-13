@@ -43,10 +43,10 @@ public class MessagingIntegrationTest {
 //
 //        MongoCollection matchCollection = FakeDatabaseConfig.FongoResultsCollectionHolder.getMatchResultCollection();
 //
-//        FinalMatchResult result1 = new FinalMatchResult("match1", new Result("compId1", "team1", "team2", 1, 1));
-//        FinalMatchResult result2 = new FinalMatchResult("match2", new Result("compId1", "team3", "team9", 3, 3));
+//        MatchResult result1 = new MatchResult("match1", new Result("compId1", "team1", "team2", 1, 1));
+//        MatchResult result2 = new MatchResult("match2", new Result("compId1", "team3", "team9", 3, 3));
 //
-//        BetsBatch betsBatch = new BetsBatch(3, bets, new MD5HashGenerator().getHash(bets));
+//        BetBatch betsBatch = new BetBatch(3, bets, new MD5HashGenerator().getHash(bets));
 //
 //        cache.select(DB_INDEX);
 //        cache.set("match1", new JsonUtils().toJson(result1.getResult()));

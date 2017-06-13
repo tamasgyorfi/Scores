@@ -1,8 +1,8 @@
 package hu.bets.points.services.conversion;
 
-import hu.bets.model.FinalMatchResult;
+import hu.bets.model.MatchResult;
 
 public interface ModelConverterService {
 
-    FinalMatchResult convert(String matchId, String resultRequest);
+    MatchResult convert(String matchId, String resultRequest);
 }
