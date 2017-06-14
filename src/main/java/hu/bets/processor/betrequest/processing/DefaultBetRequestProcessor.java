@@ -1,6 +1,7 @@
 package hu.bets.processor.betrequest.processing;
 
 import com.google.common.collect.Sets;
+import hu.bets.model.MatchResult;
 import hu.bets.model.SecureMatchResult;
 import hu.bets.points.dbaccess.DatabaseException;
 import hu.bets.points.dbaccess.ScoresServiceDAO;
@@ -8,6 +9,7 @@ import hu.bets.points.services.MatchResultProcessingException;
 import hu.bets.points.services.conversion.IllegalJsonException;
 import org.apache.log4j.Logger;
 
+import java.util.Collections;
 import java.util.Set;
 
 public class DefaultBetRequestProcessor implements BetRequestProcessor {
@@ -29,5 +31,6 @@ public class DefaultBetRequestProcessor implements BetRequestProcessor {
         } catch (IllegalJsonException | DatabaseException e) {
             throw new MatchResultProcessingException(e);
         }
+
     }
 }

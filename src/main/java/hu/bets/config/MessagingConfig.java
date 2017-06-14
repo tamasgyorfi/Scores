@@ -43,9 +43,4 @@ public class MessagingConfig {
     public MessageSender betAggregateResultSender(CompletionService<ProcessingResult> executor) {
         return new MessageSender(senderChannel, executor);
     }
-
-    @Bean
-    public CommonExecutor getBetsBatchExecutor(CompletionService<ProcessingResult> completionService, BetBatchProcessor processor, BetBatchValidator validator) {
-        return new CommonExecutor(completionService, processor, validator);
-    }
 }

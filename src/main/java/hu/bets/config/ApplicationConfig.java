@@ -4,6 +4,7 @@ import com.mongodb.client.MongoCollection;
 import hu.bets.common.config.model.CommonConfig;
 import hu.bets.common.util.hash.MD5HashGenerator;
 import hu.bets.common.util.schema.SchemaValidator;
+import hu.bets.processor.CommonExecutor;
 import hu.bets.processor.betbatch.processing.BetBatchProcessor;
 import hu.bets.processor.betbatch.processing.DefaultBetBatchProcessor;
 import hu.bets.processor.betbatch.validation.BetBatchValidator;
@@ -61,6 +62,12 @@ public class ApplicationConfig {
     @Bean
     public BetBatchValidator getDefaultBetBatchValidator() {
         return new DefaultBetBatchValidator(new MD5HashGenerator());
+    }
+
+
+    @Bean
+    public CommonExecutor getBetsBatchExecutor(CompletionService<ProcessingResult> completionService, BetBatchProcessor processor, BetBatchValidator validator) {
+        return new CommonExecutor(completionService, processor, validator);
     }
 
     @Bean

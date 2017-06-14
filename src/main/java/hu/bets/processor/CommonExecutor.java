@@ -4,6 +4,7 @@ import hu.bets.processor.betbatch.BetBatchTask;
 import hu.bets.processor.betbatch.processing.BetBatchProcessor;
 import hu.bets.processor.betbatch.validation.BetBatchValidator;
 import hu.bets.processor.betrequest.BetRequestTask;
+import hu.bets.processor.betrequest.validation.DefaultBetRequestValidator;
 
 import java.util.concurrent.CompletionService;
 
@@ -26,7 +27,7 @@ public class CommonExecutor {
                 break;
             }
             case BETS_REQUEST: {
-                executor.submit(new BetRequestTask(payload, null, null));
+                executor.submit(new BetRequestTask(payload, new DefaultBetRequestValidator(), null));
                 break;
             }
         }

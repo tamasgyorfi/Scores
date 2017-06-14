@@ -29,13 +29,14 @@ public class MessageSender {
     private void run() {
         while (shouldContinue) {
             try {
-                Future<ProcessingResult> payload = resultQueue.poll(5L, TimeUnit.SECONDS);
+                Future<ProcessingResult> payload = resultQueue.poll(1L, TimeUnit.SECONDS);
                 if (payload != null) {
                     sendMessage(new JsonUtils().toJson(payload.get()));
                 }
-            } catch (Exception e) {
-                // Nothing to worry about, quit runner thread
+            } catch (InterruptedException e) {
                 shouldContinue = false;
+            } catch (Exception e) {
+                // Don't let the sender thread die.
             }
         }
     }
