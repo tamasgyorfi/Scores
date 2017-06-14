@@ -1,8 +1,9 @@
 package hu.bets.processor;
 
-import hu.bets.processor.betbatch.processing.BetBatchProcessor;
 import hu.bets.processor.betbatch.BetBatchTask;
+import hu.bets.processor.betbatch.processing.BetBatchProcessor;
 import hu.bets.processor.betbatch.validation.BetBatchValidator;
+import hu.bets.processor.betrequest.BetRequestTask;
 
 import java.util.concurrent.CompletionService;
 
@@ -18,7 +19,16 @@ public class CommonExecutor {
         this.defaultBetBatchValidator = defaultBetBatchValidator;
     }
 
-    public void enqueue(String payload) {
-        executor.submit(new BetBatchTask(payload, defaultBetBatchValidator, betBatchProcessor));
+    public void enqueue(String payload, Type taskType) {
+        switch (taskType) {
+            case ACKNOWLEDGE_REQUEST: {
+                executor.submit(new BetBatchTask(payload, defaultBetBatchValidator, betBatchProcessor));
+                break;
+            }
+            case BETS_REQUEST: {
+                executor.submit(new BetRequestTask(payload, null, null));
+                break;
+            }
+        }
     }
 }

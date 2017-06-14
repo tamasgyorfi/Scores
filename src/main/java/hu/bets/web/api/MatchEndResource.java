@@ -4,6 +4,7 @@ import hu.bets.model.MatchResult;
 import hu.bets.points.services.ResultHandlerService;
 import hu.bets.points.services.conversion.ModelConverterService;
 import hu.bets.processor.CommonExecutor;
+import hu.bets.processor.Type;
 import hu.bets.web.model.ResultResponse;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,7 +41,8 @@ public class MatchEndResource {
 
         LOGGER.info("Post request invoked. " + matchId + ": " + resultRequest);
         try {
-            resultHandlerService.saveMatchResult(matchId, resultRequest);
+            validateAndConvert(matchId, resultRequest);
+            commonExecutor.enqueue(resultRequest, Type.BETS_REQUEST);
             return ResultResponse.success(Response.Status.ACCEPTED, "Match results saved.");
         } catch (Exception e) {
             return ResultResponse.error(Response.Status.INTERNAL_SERVER_ERROR, e.getMessage());

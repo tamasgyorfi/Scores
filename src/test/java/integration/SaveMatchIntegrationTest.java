@@ -52,7 +52,7 @@ public class SaveMatchIntegrationTest {
     }
 
     private static final int DB_INDEX = 1;
-    private static final long WAIT_TIME_SECONDS = 2;
+    private static final long WAIT_TIME_SECONDS = 3;
 
     private Bet bet1 = new Bet("user1", "match100", new Result("match100", "compId100", "team1", "team2", 3, 1), "bet100");
     private Bet bet2 = new Bet("user2", "match200", new Result("match200", "compId100", "team3", "team9", 3, 3), "bet200");
@@ -142,8 +142,6 @@ public class SaveMatchIntegrationTest {
 
         MatchResult result1 = new MatchResult("match100", new Result("match100", "compId100", "team1", "team2", 1, 1));
         MatchResult result2 = new MatchResult("match200", new Result("match200", "compId100", "team3", "team9", 3, 3));
-
-        System.out.println("-->"+new Gson().toJson(new SecureMatchResult(result1, "ashdj")));
 
         BetBatch betBatch = new BetBatch(3, bets, new MD5HashGenerator().getHash(bets));
 
