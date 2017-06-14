@@ -28,7 +28,7 @@ public abstract class AbstractProcessorTask<T> implements Callable<ProcessingRes
             Set<String> processed = processor.process(preProcessedPayload);
             return new ProcessingResult(processed, getType());
         } catch (InvalidBatchException e) {
-            LOGGER.error("Unable to process batch.", e);
+            LOGGER.error("Unable to process batch."+ e);
         }
         return new ProcessingResult();
     }

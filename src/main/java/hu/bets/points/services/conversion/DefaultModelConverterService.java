@@ -17,7 +17,7 @@ public class DefaultModelConverterService implements ModelConverterService {
     }
 
     @Override
-    public MatchResult convert(String matchId, String resultRequest) {
+    public SecureMatchResult convert(String matchId, String resultRequest) {
 
         validate(resultRequest);
         return convertResultRequest(matchId, resultRequest);
@@ -27,10 +27,9 @@ public class DefaultModelConverterService implements ModelConverterService {
         schemaValidator.validatePayload(resultRequest, "matchResult.request.schema.json");
     }
 
-    private MatchResult convertResultRequest(String matchId, String resultRequest) {
+    private SecureMatchResult convertResultRequest(String matchId, String resultRequest) {
         try {
-            SecureMatchResult result = MAPPER.readValue(resultRequest, SecureMatchResult.class);
-            return result.getMatchResult();
+            return MAPPER.readValue(resultRequest, SecureMatchResult.class);
         } catch (Exception e) {
             throw new IllegalJsonException(e);
         }

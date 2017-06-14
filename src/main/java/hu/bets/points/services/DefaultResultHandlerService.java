@@ -1,6 +1,7 @@
 package hu.bets.points.services;
 
 import hu.bets.model.MatchResult;
+import hu.bets.model.SecureMatchResult;
 import hu.bets.points.dbaccess.DatabaseException;
 import hu.bets.points.dbaccess.ScoresServiceDAO;
 import hu.bets.points.services.conversion.IllegalJsonException;
@@ -22,10 +23,10 @@ public class DefaultResultHandlerService implements ResultHandlerService {
     @Override
     public void saveMatchResult(String matchId, String resultRequest) {
         try {
-            MatchResult matchResult = modelConverterService.convert(matchId, resultRequest);
+            SecureMatchResult matchResult = modelConverterService.convert(matchId, resultRequest);
             LOGGER.info("MatchResult resulting from conversion: " + matchResult);
 
-            scoresServiceDAO.saveMatch(matchResult);
+            scoresServiceDAO.saveMatch(matchResult.getMatchResult());
             LOGGER.info("MatchResult saved to the database. " + matchResult);
 
         } catch (IllegalJsonException | DatabaseException e) {

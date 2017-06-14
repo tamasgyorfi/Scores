@@ -1,6 +1,7 @@
 package hu.bets.points.services;
 
 import hu.bets.model.MatchResult;
+import hu.bets.model.SecureMatchResult;
 import hu.bets.points.dbaccess.ScoresServiceDAO;
 import hu.bets.points.services.conversion.ModelConverterService;
 import org.junit.Before;
@@ -28,9 +29,11 @@ public class DefaultResultHandlerServiceTest {
     @Test
     public void saveResultShouldConvertThePayloadAndSaveToTheDatabase() {
 
+        SecureMatchResult secureMatchResult = Mockito.mock(SecureMatchResult.class);
         MatchResult matchResult = Mockito.mock(MatchResult.class);
 
-        Mockito.when(modelConverterService.convert("matchId1", "")).thenReturn(matchResult);
+        Mockito.when(modelConverterService.convert("matchId1", "")).thenReturn(secureMatchResult);
+        Mockito.when(secureMatchResult.getMatchResult()).thenReturn(matchResult);
         sut.saveMatchResult("matchId1", "");
 
         Mockito.verify(scoresServiceDAO).saveMatch(matchResult);

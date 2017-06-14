@@ -1,6 +1,7 @@
 package hu.bets.web.api;
 
 import hu.bets.model.MatchResult;
+import hu.bets.model.SecureMatchResult;
 import hu.bets.points.services.ResultHandlerService;
 import hu.bets.points.services.conversion.ModelConverterService;
 import hu.bets.processor.CommonExecutor;
@@ -49,8 +50,8 @@ public class MatchEndResource {
         }
     }
 
-    private MatchResult validateAndConvert(String matchId, String resultRequest) {
-        MatchResult matchResult = modelConverterService.convert(matchId, resultRequest);
+    private SecureMatchResult validateAndConvert(String matchId, String resultRequest) {
+        SecureMatchResult matchResult = modelConverterService.convert(matchId, resultRequest);
         LOGGER.info("MatchResult resulting from conversion: " + matchResult);
 
         return matchResult;
