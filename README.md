@@ -1,5 +1,5 @@
 # Scores
-Service for evaluating user bets given a match end score.
+Service for evaluating user bets given a match's final result.
 
 ## Payload format for the results endpoint
 {  
