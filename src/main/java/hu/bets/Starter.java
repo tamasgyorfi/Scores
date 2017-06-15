@@ -1,10 +1,10 @@
 package hu.bets;
 
 import hu.bets.common.messaging.MessageListener;
-import hu.bets.config.ApplicationConfig;
-import hu.bets.config.DatabaseConfig;
-import hu.bets.config.MessagingConfig;
-import hu.bets.config.WebConfig;
+import hu.bets.points.config.ApplicationConfig;
+import hu.bets.points.config.DatabaseConfig;
+import hu.bets.points.config.MessagingConfig;
+import hu.bets.points.config.WebConfig;
 import org.apache.log4j.Logger;
 import org.eclipse.jetty.server.Server;
 import org.springframework.context.ApplicationContext;

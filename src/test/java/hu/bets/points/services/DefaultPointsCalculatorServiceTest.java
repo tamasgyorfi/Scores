@@ -1,6 +1,6 @@
 package hu.bets.points.services;
 
-import hu.bets.model.Result;
+import hu.bets.points.model.Result;
 import hu.bets.points.services.points.DefaultPointsCalculatorService;
 import org.junit.Test;
 

@@ -1,7 +1,6 @@
 package hu.bets.points.services;
 
-import hu.bets.model.MatchResult;
-import hu.bets.model.SecureMatchResult;
+import hu.bets.points.model.SecureMatchResult;
 import hu.bets.points.dbaccess.DatabaseException;
 import hu.bets.points.dbaccess.ScoresServiceDAO;
 import hu.bets.points.services.conversion.IllegalJsonException;

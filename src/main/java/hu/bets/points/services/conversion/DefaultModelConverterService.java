@@ -2,9 +2,7 @@ package hu.bets.points.services.conversion;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hu.bets.common.util.schema.SchemaValidator;
-import hu.bets.model.MatchResult;
-import hu.bets.model.Result;
-import hu.bets.model.SecureMatchResult;
+import hu.bets.points.model.SecureMatchResult;
 
 public class DefaultModelConverterService implements ModelConverterService {
 

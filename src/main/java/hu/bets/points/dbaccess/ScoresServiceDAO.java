@@ -1,8 +1,8 @@
 package hu.bets.points.dbaccess;
 
-import hu.bets.model.Bet;
-import hu.bets.model.MatchResult;
-import hu.bets.model.Result;
+import hu.bets.points.model.Bet;
+import hu.bets.points.model.MatchResult;
+import hu.bets.points.model.Result;
 
 import java.util.Collection;
 import java.util.Optional;

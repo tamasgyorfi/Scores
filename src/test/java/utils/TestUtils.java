@@ -1,8 +1,7 @@
 package utils;
 
-import com.google.gson.Gson;
-import hu.bets.model.MatchResult;
-import hu.bets.model.Result;
+import hu.bets.points.model.MatchResult;
+import hu.bets.points.model.Result;
 
 import java.time.LocalDateTime;
 

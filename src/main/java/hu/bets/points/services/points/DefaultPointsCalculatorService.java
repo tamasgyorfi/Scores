@@ -1,6 +1,6 @@
 package hu.bets.points.services.points;
 
-import hu.bets.model.Result;
+import hu.bets.points.model.Result;
 
 public class DefaultPointsCalculatorService implements PointsCalculatorService {
 
