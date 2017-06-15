@@ -2,10 +2,16 @@
 Service for evaluating user bets given a match end score.
 
 ## Payload format for the results endpoint
-{
-    "awayTeamGoals": 0,
-    "awayTeamId": "1001",
-    "competitionId": "champions",
-    "homeTeamGoals": 2,
-    "homeTeamId": "2063"
-}
+{  
+	"matchResult":{  
+        "result":{  
+            "matchId":""+matchId+"",  
+            "competitionId":"compId100",  
+            "homeTeamId":"team1",  
+            "awayTeamId":"team2",  
+            "homeTeamGoals":1,  
+            "awayTeamGoals":1  
+        }  
+    },  
+    "securityToken":"ashdj"  
+}  
