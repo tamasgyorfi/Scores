@@ -45,6 +45,8 @@ public class MatchEndResource {
             validateAndConvert(matchId, resultRequest);
             commonExecutor.enqueue(resultRequest, Type.BETS_REQUEST);
             return ResultResponse.success(Response.Status.ACCEPTED, "Match results saved.");
+        } catch (IllegalPayloadException e) {
+            return ResultResponse.error(Response.Status.BAD_REQUEST, e.getMessage());
         } catch (Exception e) {
             return ResultResponse.error(Response.Status.INTERNAL_SERVER_ERROR, e.getMessage());
         }

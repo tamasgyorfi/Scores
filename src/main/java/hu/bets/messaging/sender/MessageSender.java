@@ -37,6 +37,7 @@ public class MessageSender {
                 shouldContinue = false;
             } catch (Exception e) {
                 // Don't let the sender thread die.
+                e.printStackTrace();
             }
         }
     }

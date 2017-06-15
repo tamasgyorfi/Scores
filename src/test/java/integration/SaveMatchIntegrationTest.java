@@ -3,6 +3,7 @@ package integration;
 import com.google.common.collect.Lists;
 import com.google.gson.Gson;
 import com.mongodb.client.MongoCollection;
+import com.mongodb.client.model.Filters;
 import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.DefaultConsumer;
@@ -13,7 +14,10 @@ import hu.bets.config.ApplicationConfig;
 import hu.bets.config.MessagingConfig;
 import hu.bets.config.WebConfig;
 import hu.bets.messaging.MessagingConstants;
-import hu.bets.model.*;
+import hu.bets.model.Bet;
+import hu.bets.model.BetBatch;
+import hu.bets.model.MatchResult;
+import hu.bets.model.Result;
 import hu.bets.points.dbaccess.MongoBasedScoresServiceDAO;
 import hu.bets.steps.Given;
 import hu.bets.steps.When;
@@ -23,9 +27,11 @@ import hu.bets.web.model.ResultResponse;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
 import org.bson.Document;
+import org.junit.After;
 import org.junit.BeforeClass;
 import org.junit.Test;
 import redis.clients.jedis.Jedis;
+import utils.TestUtils;
 
 import javax.ws.rs.core.Response;
 import java.io.IOException;
@@ -36,6 +42,7 @@ import java.util.concurrent.TimeUnit;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
 import static utils.TestUtils.CORRECT_MATCH_END_PAYLOAD;
 import static utils.TestUtils.getRecord;
 
@@ -49,6 +56,13 @@ public class SaveMatchIntegrationTest {
                 WebConfig.class);
 
         TimeUnit.SECONDS.sleep(2);
+    }
+
+    @After
+    public void after() {
+        ApplicationContextHolder.getBean(Jedis.class).flushAll();
+        FakeDatabaseConfig.FongoResultsCollectionHolder.getMatchResultCollection().drop();
+        FakeDatabaseConfig.FongoResultsCollectionHolder.getScoresCollection().drop();
     }
 
     private static final int DB_INDEX = 1;
@@ -90,6 +104,20 @@ public class SaveMatchIntegrationTest {
     }
 
     @Test
+    public void resultShouldErrorIfMatchIdDoesNotMatchPayloadMatchId() throws Exception {
+
+        String endpoint = "http://" + EnvironmentVarResolver.getEnvVar("HOST") +
+                ":" + EnvironmentVarResolver.getEnvVar("PORT") + "/scores/football/v1/results/Unknown";
+
+        HttpResponse httpResponse = When.iMakeAPostRequest(endpoint, CORRECT_MATCH_END_PAYLOAD);
+        ResultResponse resultResponse = new Gson().fromJson(EntityUtils.toString(httpResponse.getEntity()), ResultResponse.class);
+
+        assertEquals(Response.Status.BAD_REQUEST, resultResponse.getResponseCode());
+        assertEquals("", resultResponse.getResponsePayload());
+        assertEquals("MatchId mismatch.", resultResponse.getError());
+    }
+
+    @Test
     public void infoEndpointShouldReplyWIthOk() throws Exception {
 
         String endpoint = "http://" + EnvironmentVarResolver.getEnvVar("HOST") +
@@ -128,7 +156,7 @@ public class SaveMatchIntegrationTest {
     }
 
     @Test
-    public void testEndToEndMessaging() throws IOException, InterruptedException {
+    public void testIncomingBetBatchHandling() throws Exception {
         Jedis cache = ApplicationContextHolder.getBean(Jedis.class);
 
         Channel senderChannel = ApplicationContextHolder.getBean(Channel.class);
@@ -154,6 +182,47 @@ public class SaveMatchIntegrationTest {
         TimeUnit.SECONDS.sleep(WAIT_TIME_SECONDS);
 
         assertEquals("{\"payload\":[\"bet200\",\"bet100\"],\"type\":\"ACKNOWLEDGE_REQUEST\"}", testConsumer.getMessage());
+
+        senderChannel.close();
+        receiverChannel.close();
+    }
+
+    @Test
+    public void correctIncomingPayloadShouldBeSavedInTheDatabaseAndBetsRequested() throws Exception {
+
+        String uniqueId = "UniqueID";
+
+        Channel senderChannel = ApplicationContextHolder.getBean(Channel.class);
+        Channel receiverChannel = ApplicationContextHolder.getBean(Channel.class);
+        TestCosumer testConsumer = new TestCosumer(receiverChannel);
+
+        receiverChannel.queueBind(MessagingConstants.SCORES_TO_BETS_QUEUE, MessagingConstants.EXCHANGE_NAME, MessagingConstants.SCORES_TO_BETS_ROUTE);
+        receiverChannel.basicConsume(MessagingConstants.SCORES_TO_BETS_QUEUE, true, testConsumer);
+
+
+        String endpoint = "http://" + EnvironmentVarResolver.getEnvVar("HOST") +
+                ":" + EnvironmentVarResolver.getEnvVar("PORT") + "/scores/football/v1/results/" + uniqueId;
+
+        HttpResponse httpResponse = When.iMakeAPostRequest(endpoint, TestUtils.getMatchEndPayload(uniqueId));
+        ResultResponse resultResponse = new Gson().fromJson(EntityUtils.toString(httpResponse.getEntity()), ResultResponse.class);
+
+        assertEquals(Response.Status.ACCEPTED, resultResponse.getResponseCode());
+        assertEquals("", resultResponse.getError());
+        assertEquals("Match results saved.", resultResponse.getResponsePayload());
+
+        TimeUnit.SECONDS.sleep(WAIT_TIME_SECONDS);
+
+        assertNotNull(FakeDatabaseConfig.FongoResultsCollectionHolder
+                .getMatchResultCollection()
+                .find(Filters.eq("result.matchId", uniqueId))
+                .first());
+
+        assertNotNull(ApplicationContextHolder.getBean(Jedis.class).get(uniqueId));
+
+        assertEquals("{\"payload\":[\"" + uniqueId + "\"],\"type\":\"BETS_REQUEST\"}", testConsumer.getMessage());
+
+        senderChannel.close();
+        receiverChannel.close();
     }
 
     private static class TestCosumer extends DefaultConsumer {
