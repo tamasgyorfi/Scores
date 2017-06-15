@@ -79,7 +79,7 @@ public class SaveMatchIntegrationTest {
     public void resultShouldBeSavedIfSchemaValidationPasses() throws Exception {
 
         String endpoint = "http://" + EnvironmentVarResolver.getEnvVar("HOST") +
-                ":" + EnvironmentVarResolver.getEnvVar("PORT") + "/scores/football/v1/results/101LLLAAA";
+                ":" + EnvironmentVarResolver.getEnvVar("PORT") + "/scores/football/v1/results/match100";
 
         HttpResponse httpResponse = When.iMakeAPostRequest(endpoint, CORRECT_MATCH_END_PAYLOAD);
         ResultResponse resultResponse = new Gson().fromJson(EntityUtils.toString(httpResponse.getEntity()), ResultResponse.class);

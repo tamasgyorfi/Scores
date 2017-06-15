@@ -2,17 +2,14 @@ package hu.bets.processor.betrequest;
 
 import hu.bets.model.SecureMatchResult;
 import hu.bets.processor.AbstractProcessorTask;
-import hu.bets.processor.Processor;
 import hu.bets.processor.Type;
-import hu.bets.processor.Validator;
+import hu.bets.processor.betrequest.processing.BetRequestProcessor;
+import hu.bets.processor.betrequest.validation.BetRequestValidator;
 
 public class BetRequestTask extends AbstractProcessorTask<SecureMatchResult> {
 
-    private String payload;
-
-    public BetRequestTask(String payload, Validator<SecureMatchResult> validator, Processor<SecureMatchResult> processor) {
-        super(payload, validator, processor);
-        this.payload = payload;
+    public BetRequestTask(BetRequestValidator validator, BetRequestProcessor processor) {
+        super(validator, processor);
     }
 
     @Override

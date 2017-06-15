@@ -2,15 +2,16 @@ package hu.bets.processor.processing;
 
 import com.google.common.collect.Sets;
 import hu.bets.common.util.hash.HashGenerator;
-import hu.bets.model.BetBatch;
-import hu.bets.processor.betbatch.BetBatchTask;
-import hu.bets.processor.betbatch.processing.DefaultBetBatchProcessor;
-import hu.bets.processor.betbatch.validation.DefaultBetBatchValidator;
 import hu.bets.model.Bet;
-import hu.bets.processor.ProcessingResult;
+import hu.bets.model.BetBatch;
 import hu.bets.model.Result;
 import hu.bets.points.dbaccess.ScoresServiceDAO;
 import hu.bets.points.services.points.PointsCalculatorService;
+import hu.bets.processor.AbstractProcessorTask;
+import hu.bets.processor.ProcessingResult;
+import hu.bets.processor.betbatch.BetBatchTask;
+import hu.bets.processor.betbatch.processing.DefaultBetBatchProcessor;
+import hu.bets.processor.betbatch.validation.DefaultBetBatchValidator;
 import hu.bets.utils.JsonUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,7 +19,10 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.*;
@@ -28,7 +32,7 @@ public class BetBatchTaskTest {
 
     private static final String FAKE_PAYLOAD = "Fake";
     private static final String HASH = "HASH";
-    private BetBatchTask sut;
+    private AbstractProcessorTask<?> sut;
 
     @Mock
     private JsonUtils jsonUtils;
@@ -41,7 +45,7 @@ public class BetBatchTaskTest {
 
     @Before
     public void setup() {
-        sut = new FakeBetBatchTask(FAKE_PAYLOAD, pointsCalculatorService, dataAccess, hashGenerator);
+        sut = new FakeBetBatchTask(pointsCalculatorService, dataAccess, hashGenerator).withPayLoad(FAKE_PAYLOAD);
     }
 
     @Test
@@ -126,8 +130,8 @@ public class BetBatchTaskTest {
 
     private class FakeBetBatchTask extends BetBatchTask {
 
-        public FakeBetBatchTask(String batchPayload, PointsCalculatorService pointsCalculatorService, ScoresServiceDAO dataAccess, HashGenerator hashGenerator) {
-            super(batchPayload, new DefaultBetBatchValidator(hashGenerator), new DefaultBetBatchProcessor(dataAccess, pointsCalculatorService));
+        public FakeBetBatchTask(PointsCalculatorService pointsCalculatorService, ScoresServiceDAO dataAccess, HashGenerator hashGenerator) {
+            super(new DefaultBetBatchValidator(hashGenerator), new DefaultBetBatchProcessor(dataAccess, pointsCalculatorService));
         }
 
         @Override

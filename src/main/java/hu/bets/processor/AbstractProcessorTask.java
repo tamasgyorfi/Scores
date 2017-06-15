@@ -10,14 +10,24 @@ public abstract class AbstractProcessorTask<T> implements Callable<ProcessingRes
 
     private static final Logger LOGGER = Logger.getLogger(AbstractProcessorTask.class);
 
-    private final String payload;
+    private String payload;
     private final Validator<T> validator;
     private final Processor<T> processor;
+
+    public AbstractProcessorTask(Validator<T> validator, Processor<T> processor) {
+        this.validator = validator;
+        this.processor = processor;
+    }
 
     public AbstractProcessorTask(String payload, Validator<T> validator, Processor<T> processor) {
         this.payload = payload;
         this.validator = validator;
         this.processor = processor;
+    }
+
+    public AbstractProcessorTask<T> withPayLoad(String payload) {
+        this.payload = payload;
+        return this;
     }
 
     @Override
@@ -28,7 +38,7 @@ public abstract class AbstractProcessorTask<T> implements Callable<ProcessingRes
             Set<String> processed = processor.process(preProcessedPayload);
             return new ProcessingResult(processed, getType());
         } catch (InvalidBatchException e) {
-            LOGGER.error("Unable to process batch."+ e);
+            LOGGER.error("Unable to process batch." + e);
         }
         return new ProcessingResult();
     }
@@ -36,4 +46,8 @@ public abstract class AbstractProcessorTask<T> implements Callable<ProcessingRes
     public abstract T preProcess();
 
     public abstract Type getType();
+
+    public String getPayload() {
+        return payload;
+    }
 }

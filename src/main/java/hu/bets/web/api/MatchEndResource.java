@@ -52,6 +52,9 @@ public class MatchEndResource {
 
     private SecureMatchResult validateAndConvert(String matchId, String resultRequest) {
         SecureMatchResult matchResult = modelConverterService.convert(matchId, resultRequest);
+        if (!matchResult.getMatchResult().getResult().getMatchId().equals(matchId)) {
+            throw new IllegalPayloadException("MatchId mismatch.");
+        }
         LOGGER.info("MatchResult resulting from conversion: " + matchResult);
 
         return matchResult;

@@ -10,19 +10,16 @@ import hu.bets.utils.JsonUtils;
 
 public class BetBatchTask extends AbstractProcessorTask<BetBatch> {
 
-    private final String batchPayload;
-
-    public BetBatchTask(String batchPayload, BetBatchValidator validator, BetBatchProcessor processor) {
-        super(batchPayload, validator, processor);
-        this.batchPayload = batchPayload;
+    public BetBatchTask(BetBatchValidator validator, BetBatchProcessor processor) {
+        super(validator, processor);
     }
 
     @Override
     public BetBatch preProcess() {
         try {
-            return getMapper().fromJson(batchPayload, BetBatch.class);
+            return getMapper().fromJson(getPayload(), BetBatch.class);
         } catch (Exception e) {
-            throw new InvalidBatchException("Batch with payload " + batchPayload + " cannot be read.", e);
+            throw new InvalidBatchException("Batch with payload " + getPayload() + " cannot be read.", e);
         }
     }
 
