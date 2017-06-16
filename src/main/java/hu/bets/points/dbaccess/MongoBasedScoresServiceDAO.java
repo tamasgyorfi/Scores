@@ -144,13 +144,14 @@ public class MongoBasedScoresServiceDAO implements ScoresServiceDAO {
         Set<String> resultRecords = new HashSet<>();
 
         try {
-            lock.acquire();
-            cacheCollection.select(UNPROCESSED_MATCHES_COLLECTION);
-            try {
-                resultRecords.addAll(cacheCollection.keys("*"));
-                cacheCollection.flushDB();
-            } catch (Exception e) {
-                lock.release();
+            if (lock.acquire()) {
+                cacheCollection.select(UNPROCESSED_MATCHES_COLLECTION);
+                try {
+                    resultRecords.addAll(cacheCollection.keys("*"));
+                    cacheCollection.flushDB();
+                } catch (Exception e) {
+                    lock.release();
+                }
             }
         } catch (InterruptedException e) {
             // Nothing to do here.
