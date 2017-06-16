@@ -27,9 +27,13 @@ import hu.bets.points.processor.betrequest.processing.DefaultBetRequestProcessor
 import hu.bets.points.processor.betrequest.validation.BetRequestValidator;
 import hu.bets.points.processor.betrequest.validation.DefaultBetRequestValidator;
 import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
+import org.springframework.core.io.ClassPathResource;
+import org.springframework.core.io.ContextResource;
+import org.springframework.core.io.Resource;
 import redis.clients.jedis.Jedis;
 
 import java.util.Map;
@@ -106,6 +110,16 @@ public class ApplicationConfig {
     @Bean("BETS_REQUEST")
     public BetRequestTask betRequestTask(DefaultBetRequestValidator validator, DefaultBetRequestProcessor processor) {
         return new BetRequestTask(validator, processor);
+    }
+
+    @Bean
+    public PropertyPlaceholderConfigurer propertyPlaceholderConfigurer() {
+        PropertyPlaceholderConfigurer configurer = new PropertyPlaceholderConfigurer();
+        configurer.setFileEncoding("UTF-8");
+        configurer.setIgnoreResourceNotFound(false);
+        configurer.setLocation(new ClassPathResource("values.properties"));
+
+        return configurer;
     }
 
 }

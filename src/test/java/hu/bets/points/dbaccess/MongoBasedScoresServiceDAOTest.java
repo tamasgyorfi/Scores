@@ -76,7 +76,7 @@ public class MongoBasedScoresServiceDAOTest {
     @Test
     public void shouldRetrieveNotProcessedMatches() {
         LocalDateTime out = sut.getCurrentTime().minusHours(48);
-        LocalDateTime in = sut.getCurrentTime().minusHours(8);
+        LocalDateTime in = sut.getCurrentTime();
 
         sut.saveMatch(getRecord(in, "match1"));
         sut.saveMatch(getRecord(out, "match2"));

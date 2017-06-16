@@ -11,6 +11,7 @@ import hu.bets.points.utils.JsonUtils;
 import org.apache.log4j.Logger;
 import org.bson.Document;
 import org.bson.conversions.Bson;
+import org.springframework.beans.factory.annotation.Value;
 import redis.clients.jedis.Jedis;
 
 import java.time.LocalDateTime;
@@ -18,22 +19,29 @@ import java.time.ZoneId;
 import java.util.*;
 import java.util.function.Consumer;
 
+import static hu.bets.points.dbaccess.DatabaseFields.MATCH_DATE;
+import static hu.bets.points.dbaccess.DatabaseFields.MATCH_ID;
+
 public class MongoBasedScoresServiceDAO implements ScoresServiceDAO {
 
     private static final Logger LOGGER = Logger.getLogger(MongoBasedScoresServiceDAO.class);
 
     private static final int UNPROCESSED_MATCHES_COLLECTION = 0;
     private static final int MATCH_RESULTS_COLLECTION = 1;
-
-    private static final int RECORD_AGE_THRESHOLD_HOURS = 24;
-    private static final int LOCK_TIMEOUT = 1000;
-    private static final int LOCK_EXPIRATION = 3000;
-    private static final int EXPIRATION_TIME = 60 * 60;
     private static final JsonUtils JSON_UTILS = new JsonUtils();
 
     private MongoCollection<Document> matchCollection;
     private MongoCollection<Document> scoreCollection;
     private Jedis cacheCollection;
+
+    @Value("${match.cache.expiration.seconds:3000}")
+    private int matchExpiration;
+    @Value("${match.retry.threshold.hours:24}")
+    private int retryThreshold;
+    @Value("${cache.lock.acquire.expiration.millis:1000}")
+    private int lockAcquireExpiration;
+    @Value("${cache.lock.expiration.millis:1000}")
+    private int lockExpiration;
 
     public MongoBasedScoresServiceDAO(MongoCollection<Document> matchCollection, MongoCollection<Document> scoreCollection, Jedis cacheCollection) {
         this.matchCollection = matchCollection;
@@ -97,11 +105,11 @@ public class MongoBasedScoresServiceDAO implements ScoresServiceDAO {
 
     private void cacheResult(String matchId, Result result) {
         cacheCollection.select(MATCH_RESULTS_COLLECTION);
-        cacheCollection.setex(matchId, EXPIRATION_TIME, JSON_UTILS.toJson(result));
+        cacheCollection.setex(matchId, matchExpiration, JSON_UTILS.toJson(result));
     }
 
     private Optional<Result> findMatchInDatabase(String matchId) {
-        Document matchResult = matchCollection.find(Filters.eq("result.matchId", matchId)).first();
+        Document matchResult = matchCollection.find(Filters.eq(MATCH_ID, matchId)).first();
         if (matchResult == null) {
             return Optional.empty();
         }
@@ -120,11 +128,11 @@ public class MongoBasedScoresServiceDAO implements ScoresServiceDAO {
 
     private Collection<String> filterUnprocessedMatches(Set<String> unprocessedMatches) {
 
-        LocalDateTime thresholdDate = getCurrentTime().minusHours(RECORD_AGE_THRESHOLD_HOURS);
+        LocalDateTime thresholdDate = getCurrentTime().minusHours(retryThreshold);
 
         Bson query = Filters.and(
-                Filters.in("result.matchId", unprocessedMatches),
-                Filters.gte("matchDate", DateUtil.format(thresholdDate))
+                Filters.in(MATCH_ID, unprocessedMatches),
+                Filters.gte(MATCH_DATE, DateUtil.format(thresholdDate))
         );
 
         FindIterable<Document> documents = matchCollection.find(query);
@@ -140,7 +148,7 @@ public class MongoBasedScoresServiceDAO implements ScoresServiceDAO {
 
     private Set<String> getUnprocessedMatches() {
 
-        JedisLock lock = new JedisLock(cacheCollection, "processingLock", LOCK_TIMEOUT, LOCK_EXPIRATION);
+        JedisLock lock = new JedisLock(cacheCollection, "processingLock", lockAcquireExpiration, lockExpiration);
         Set<String> resultRecords = new HashSet<>();
 
         try {
