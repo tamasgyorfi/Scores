@@ -8,6 +8,7 @@ import org.apache.log4j.Logger;
 
 import java.io.IOException;
 import java.util.concurrent.CompletionService;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 
@@ -30,23 +31,30 @@ public class MessageSender {
         while (shouldContinue) {
             try {
                 Future<ProcessingResult> payload = resultQueue.poll(1L, TimeUnit.SECONDS);
-                if (payload != null) {
+                if (isPayloadPresent(payload)) {
                     sendMessage(new JsonUtils().toJson(payload.get()));
                 }
             } catch (InterruptedException e) {
                 shouldContinue = false;
             } catch (Exception e) {
                 // Don't let the sender thread die.
-                e.printStackTrace();
+                LOGGER.error("Exception while sending message: ", e);
             }
         }
+    }
+
+    private boolean isPayloadPresent(Future<ProcessingResult> payload) throws ExecutionException, InterruptedException {
+        return payload != null && !payload.get().getPayload().isEmpty();
     }
 
     private void sendMessage(String payload) {
         LOGGER.info("Sending message to bets service: " + payload);
         for (int i = 0; i < NR_OF_RETRIES; i++) {
             try {
-                channel.basicPublish(MessagingConstants.EXCHANGE_NAME, MessagingConstants.SCORES_TO_BETS_ROUTE, null, payload.getBytes());
+                channel.basicPublish(MessagingConstants.EXCHANGE_NAME,
+                        MessagingConstants.SCORES_TO_BETS_ROUTE,
+                        null,
+                        payload.getBytes());
                 break;
             } catch (IOException e) {
                 LOGGER.error("Unable to send batch: " + payload, e);

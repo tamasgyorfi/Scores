@@ -4,7 +4,6 @@ import hu.bets.points.model.Bet;
 import hu.bets.points.model.MatchResult;
 import hu.bets.points.model.Result;
 
-import java.util.Collection;
 import java.util.Optional;
 import java.util.Set;
 
@@ -18,18 +17,11 @@ public interface ScoresServiceDAO {
     void saveMatch(MatchResult matchResult);
 
     /**
-     * Marks the match identified by matchId as incomplete for bets processing.
-     *
-     * @param matchId
-     */
-    void betProcessingFailedFor(String matchId);
-
-    /**
      * Returns all the matches which have unprocessed bets.
      *
      * @return the match IDs with unprocessed bet(s).
      */
-    Collection<String> getFailedMatchIds();
+    Set<String> getFailedMatchIds();
 
     /**
      * Saves the value associated with this bet into the database

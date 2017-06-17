@@ -9,7 +9,10 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
-import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
+
+import java.net.URI;
 
 @Configuration
 @Import(CommonMongoConfig.class)
@@ -46,7 +49,10 @@ public class DatabaseConfig {
     }
 
     @Bean
-    public Jedis getJedis() {
-        return new Jedis(EnvironmentVarResolver.getEnvVar(REDIS_URL));
+    public JedisPool jedisPool() throws Exception {
+        JedisPoolConfig poolConfig = new JedisPoolConfig();
+        poolConfig.setMaxTotal(10);
+        return new JedisPool(poolConfig, new URI(EnvironmentVarResolver.getEnvVar(REDIS_URL)));
     }
+
 }

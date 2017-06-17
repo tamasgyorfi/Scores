@@ -1,10 +1,10 @@
 package hu.bets.points.web.api;
 
 import hu.bets.points.model.SecureMatchResult;
-import hu.bets.points.services.ResultHandlerService;
-import hu.bets.points.services.conversion.ModelConverterService;
 import hu.bets.points.processor.CommonExecutor;
 import hu.bets.points.processor.Type;
+import hu.bets.points.services.ResultHandlerService;
+import hu.bets.points.services.conversion.ModelConverterService;
 import hu.bets.points.web.model.ResultResponse;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,6 +13,7 @@ import org.springframework.stereotype.Component;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import java.util.Optional;
 
 @Component
 @Path("/scores/football/v1")
@@ -42,7 +43,7 @@ public class MatchEndResource {
         LOGGER.info("Post request invoked. " + matchId + ": " + resultRequest);
         try {
             validateAndConvert(matchId, resultRequest);
-            commonExecutor.enqueue(resultRequest, Type.BETS_REQUEST);
+            commonExecutor.enqueue(Optional.of(resultRequest), Type.BETS_REQUEST);
             return ResultResponse.success(Response.Status.ACCEPTED, "Match results saved.");
         } catch (IllegalPayloadException e) {
             return ResultResponse.error(Response.Status.BAD_REQUEST, e.getMessage());

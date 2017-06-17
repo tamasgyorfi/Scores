@@ -2,7 +2,6 @@ package hu.bets.points.dbaccess;
 
 import com.fiftyonred.mock_jedis.MockJedis;
 import com.github.fakemongo.Fongo;
-import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.mongodb.client.FindIterable;
@@ -15,16 +14,19 @@ import hu.bets.points.model.Result;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.runners.MockitoJUnitRunner;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -49,24 +51,30 @@ public class MongoBasedScoresServiceDAOTest {
         }
     }
 
+    @Mock
+    private JedisPool jedisPool;
     private Jedis cacheCollection = new MockJedis("test");
+
     private MongoBasedScoresServiceDAO sut;
 
     @Before
     public void setp() {
-        sut = new FakeMongoBasedScoresServiceDAO(MongoHolder.getMatchCollection(), MongoHolder.getScoresCollection(), cacheCollection);
+        when(jedisPool.getResource()).thenReturn(cacheCollection);
+        sut = new FakeMongoBasedScoresServiceDAO(MongoHolder.getMatchCollection(), MongoHolder.getScoresCollection(), jedisPool);
     }
 
     @After
     public void tearDown() {
         cacheCollection.flushAll();
+        MongoHolder.getScoresCollection().drop();
+        MongoHolder.getMatchCollection().drop();
     }
 
     @Test
     public void shouldSaveMatchResultToTheDatabase() {
         MongoCollection matchCollection = Mockito.mock(MongoCollection.class);
         MatchResult matchResult = getRecord(LocalDateTime.now(), "22");
-        sut = new MongoBasedScoresServiceDAO(matchCollection, null, cacheCollection);
+        sut = new MongoBasedScoresServiceDAO(matchCollection, null, jedisPool);
         sut.saveMatch(matchResult);
 
         String json = new Gson().toJson(matchResult);
@@ -89,12 +97,9 @@ public class MongoBasedScoresServiceDAOTest {
         sut.saveMatch(getRecord(out, "match9"));
         sut.saveMatch(getRecord(in, "match10"));
 
-        sut.betProcessingFailedFor("match1");
-        sut.betProcessingFailedFor("match2");
-        sut.betProcessingFailedFor("match9");
-        sut.betProcessingFailedFor("match10");
+        sut.saveNonProcessedMatches(Sets.newHashSet("match1", "match2", "match9", "match10"));
 
-        assertEquals(Arrays.asList("match1", "match10"), sut.getFailedMatchIds());
+        assertEquals(Sets.newHashSet("match1", "match10"), sut.getFailedMatchIds());
     }
 
     @Test
@@ -122,27 +127,26 @@ public class MongoBasedScoresServiceDAOTest {
         sut.saveMatch(new MatchResult(getResult("id2"), sut.getCurrentTime()));
         sut.saveMatch(new MatchResult(getResult("id3"), sut.getCurrentTime()));
 
-        sut.betProcessingFailedFor("id1");
-        sut.betProcessingFailedFor("id2");
-        sut.betProcessingFailedFor("id3");
+        sut.saveNonProcessedMatches(Sets.newHashSet("id1", "id2", "id3"));
 
-        assertEquals(Lists.newLinkedList(Arrays.asList("id2", "id3")), sut.getFailedMatchIds());
+        assertEquals(Sets.newHashSet("id2", "id3"), sut.getFailedMatchIds());
     }
 
     @Test
-    public void shoulsSaveNonProcessedMatchIdsIntoCache() {
+    public void shouldSaveNonProcessedMatchIdsIntoCache() {
         sut.saveNonProcessedMatches(Sets.newHashSet("id1", "id2"));
         assertEquals("id1", cacheCollection.get("id1"));
         assertEquals("id2", cacheCollection.get("id2"));
     }
 
     @Test
-    public void shouldGetMatchResultFromTheCacheWhenPresent() {
+    public void shouldGetMatchResultFromTheCacheWhenPresent() throws InterruptedException {
         MongoCollection matchCollection = Mockito.mock(MongoCollection.class);
-        sut = new FakeMongoBasedScoresServiceDAO(matchCollection, MongoHolder.getScoresCollection(), cacheCollection);
+        sut = new FakeMongoBasedScoresServiceDAO(matchCollection, MongoHolder.getScoresCollection(), jedisPool);
         sut.saveMatch(new MatchResult(getResult("id2"), sut.getCurrentTime()));
 
-        assertEquals(Optional.of(getResult("id2")), sut.getResult("id2"));
+        Optional<Result> result = sut.getResult("id2");
+        assertEquals(Optional.ofNullable(getResult("id2")), result);
 
         verify(matchCollection).insertOne(any(Document.class));
         verify(matchCollection, never()).find(Bson.class);
@@ -151,7 +155,7 @@ public class MongoBasedScoresServiceDAOTest {
     @Test
     public void shouldGetMatchResultFromTheDbWhenCacheMiss() {
         Jedis cacheCollection = Mockito.mock(Jedis.class);
-        sut = new FakeMongoBasedScoresServiceDAO(MongoHolder.getMatchCollection(), MongoHolder.getScoresCollection(), cacheCollection);
+        sut = new FakeMongoBasedScoresServiceDAO(MongoHolder.getMatchCollection(), MongoHolder.getScoresCollection(), jedisPool);
         sut.saveMatch(new MatchResult(getResult("id2"), sut.getCurrentTime()));
 
         when(cacheCollection.get("id2")).thenReturn(null);
@@ -163,13 +167,15 @@ public class MongoBasedScoresServiceDAOTest {
     }
 
     class FakeMongoBasedScoresServiceDAO extends MongoBasedScoresServiceDAO {
-        FakeMongoBasedScoresServiceDAO(MongoCollection matchCollection, MongoCollection scoresCollection, Jedis cacheCollection) {
-            super(matchCollection, scoresCollection, cacheCollection);
+        FakeMongoBasedScoresServiceDAO(MongoCollection matchCollection, MongoCollection scoresCollection, JedisPool jedisPool) {
+            super(matchCollection, scoresCollection, jedisPool);
+            matchExpiration = 1;
         }
 
         @Override
         public LocalDateTime getCurrentTime() {
             return LocalDateTime.of(2017, 3, 19, 1, 10);
         }
+
     }
 }

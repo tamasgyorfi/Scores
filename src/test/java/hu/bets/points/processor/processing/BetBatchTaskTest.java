@@ -7,7 +7,7 @@ import hu.bets.points.model.BetBatch;
 import hu.bets.points.model.Result;
 import hu.bets.points.dbaccess.ScoresServiceDAO;
 import hu.bets.points.services.points.PointsCalculatorService;
-import hu.bets.points.processor.AbstractProcessorTask;
+import hu.bets.points.processor.AbstractValidatedProcessorTask;
 import hu.bets.points.processor.ProcessingResult;
 import hu.bets.points.processor.betbatch.BetBatchTask;
 import hu.bets.points.processor.betbatch.processing.DefaultBetBatchProcessor;
@@ -32,7 +32,7 @@ public class BetBatchTaskTest {
 
     private static final String FAKE_PAYLOAD = "Fake";
     private static final String HASH = "HASH";
-    private AbstractProcessorTask<?> sut;
+    private AbstractValidatedProcessorTask<?> sut;
 
     @Mock
     private JsonUtils jsonUtils;
@@ -45,7 +45,7 @@ public class BetBatchTaskTest {
 
     @Before
     public void setup() {
-        sut = new FakeBetBatchTask(pointsCalculatorService, dataAccess, hashGenerator).withPayLoad(FAKE_PAYLOAD);
+        sut = new FakeBetBatchTask(pointsCalculatorService, dataAccess, hashGenerator).withPayLoad(Optional.of(FAKE_PAYLOAD));
     }
 
     @Test

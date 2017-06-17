@@ -21,7 +21,15 @@ public class ProcessingResult {
         return payload;
     }
 
-    public Type getType() {
-        return type;
+    public String getType() {
+        return type.getType();
+    }
+
+    @Override
+    public String toString() {
+        return "ProcessingResult{" +
+                "payload=" + payload +
+                ", type=" + type +
+                '}';
     }
 }

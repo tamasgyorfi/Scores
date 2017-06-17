@@ -1,5 +1,6 @@
 package hu.bets.points.processor;
 
+import java.util.Optional;
 import java.util.concurrent.CompletionService;
 
 public class CommonExecutor {
@@ -12,7 +13,7 @@ public class CommonExecutor {
         this.taskFactory = taskFactory;
     }
 
-    public void enqueue(String payload, Type taskType) {
+    public void enqueue(Optional<String> payload, Type taskType) {
         executor.submit(taskFactory.taskFor(taskType, payload));
     }
 }

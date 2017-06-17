@@ -7,8 +7,12 @@ import org.bson.Document;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Scope;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import redis.clients.jedis.JedisPoolConfig;
 
+import java.net.URI;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -47,12 +51,10 @@ public class FakeDatabaseConfig {
     }
 
     @Bean
-    public Jedis geterrorCollection() {
-        try {
-            return new Jedis(getJedisEndpoint());
-        } catch (Exception e) {
-            throw new IllegalStateException(e);
-        }
+    public JedisPool jedisPool() throws Exception {
+        JedisPoolConfig poolConfig = new JedisPoolConfig();
+        poolConfig.setMaxTotal(10);
+        return new JedisPool(poolConfig, new URI(getJedisEndpoint()));
     }
 
     private String getJedisEndpoint() throws Exception {

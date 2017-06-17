@@ -6,15 +6,9 @@ import hu.bets.common.util.hash.MD5HashGenerator;
 import hu.bets.common.util.schema.SchemaValidator;
 import hu.bets.points.dbaccess.MongoBasedScoresServiceDAO;
 import hu.bets.points.dbaccess.ScoresServiceDAO;
-import hu.bets.points.services.DefaultResultHandlerService;
-import hu.bets.points.services.ResultHandlerService;
-import hu.bets.points.services.conversion.DefaultModelConverterService;
-import hu.bets.points.services.conversion.ModelConverterService;
-import hu.bets.points.services.points.DefaultPointsCalculatorService;
-import hu.bets.points.services.points.PointsCalculatorService;
-import hu.bets.points.processor.AbstractProcessorTask;
 import hu.bets.points.processor.CommonExecutor;
 import hu.bets.points.processor.ProcessingResult;
+import hu.bets.points.processor.ProcessorTask;
 import hu.bets.points.processor.ProcessorTaskFactory;
 import hu.bets.points.processor.betbatch.BetBatchTask;
 import hu.bets.points.processor.betbatch.processing.BetBatchProcessor;
@@ -26,15 +20,21 @@ import hu.bets.points.processor.betrequest.processing.BetRequestProcessor;
 import hu.bets.points.processor.betrequest.processing.DefaultBetRequestProcessor;
 import hu.bets.points.processor.betrequest.validation.BetRequestValidator;
 import hu.bets.points.processor.betrequest.validation.DefaultBetRequestValidator;
+import hu.bets.points.processor.retry.RetryTask;
+import hu.bets.points.processor.retry.RetryTaskRunner;
+import hu.bets.points.services.DefaultResultHandlerService;
+import hu.bets.points.services.ResultHandlerService;
+import hu.bets.points.services.conversion.DefaultModelConverterService;
+import hu.bets.points.services.conversion.ModelConverterService;
+import hu.bets.points.services.points.DefaultPointsCalculatorService;
+import hu.bets.points.services.points.PointsCalculatorService;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
 import org.springframework.core.io.ClassPathResource;
-import org.springframework.core.io.ContextResource;
-import org.springframework.core.io.Resource;
-import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 
 import java.util.Map;
 import java.util.concurrent.CompletionService;
@@ -58,8 +58,8 @@ public class ApplicationConfig {
     @Bean
     public ScoresServiceDAO matchDAO(@Qualifier("ResultsCollection") MongoCollection matchResultCollection,
                                      @Qualifier("ScoresCollection") MongoCollection scoresCollection,
-                                     Jedis errorCollection) {
-        return new MongoBasedScoresServiceDAO(matchResultCollection, scoresCollection, errorCollection);
+                                     JedisPool jedisPool) {
+        return new MongoBasedScoresServiceDAO(matchResultCollection, scoresCollection, jedisPool);
     }
 
     @Bean
@@ -88,7 +88,7 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public ProcessorTaskFactory processorTaskFactory(Map<String, AbstractProcessorTask<?>> tasks) {
+    public ProcessorTaskFactory processorTaskFactory(Map<String, ProcessorTask> tasks) {
         return new ProcessorTaskFactory(tasks);
     }
 
@@ -112,6 +112,16 @@ public class ApplicationConfig {
         return new BetRequestTask(validator, processor);
     }
 
+    @Bean("RETRY_REQUEST")
+    public RetryTask retryTask(ScoresServiceDAO scoresServiceDAO) {
+        return new RetryTask(scoresServiceDAO);
+    }
+
+    @Bean(initMethod = "run", destroyMethod = "kill")
+    public RetryTaskRunner retryTaskRunner(CommonExecutor commonExecutor) {
+        return new RetryTaskRunner(commonExecutor, Executors.newSingleThreadScheduledExecutor());
+    }
+
     @Bean
     public PropertyPlaceholderConfigurer propertyPlaceholderConfigurer() {
         PropertyPlaceholderConfigurer configurer = new PropertyPlaceholderConfigurer();
@@ -121,5 +131,4 @@ public class ApplicationConfig {
 
         return configurer;
     }
-
 }

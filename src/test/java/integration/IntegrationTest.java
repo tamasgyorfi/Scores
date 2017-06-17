@@ -1,42 +1,42 @@
 package integration;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.google.gson.Gson;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
-import com.rabbitmq.client.AMQP;
 import com.rabbitmq.client.Channel;
-import com.rabbitmq.client.DefaultConsumer;
-import com.rabbitmq.client.Envelope;
 import hu.bets.common.util.EnvironmentVarResolver;
 import hu.bets.common.util.hash.MD5HashGenerator;
 import hu.bets.points.config.ApplicationConfig;
 import hu.bets.points.config.MessagingConfig;
 import hu.bets.points.config.WebConfig;
+import hu.bets.points.dbaccess.MongoBasedScoresServiceDAO;
 import hu.bets.points.messaging.MessagingConstants;
 import hu.bets.points.model.Bet;
 import hu.bets.points.model.BetBatch;
 import hu.bets.points.model.MatchResult;
 import hu.bets.points.model.Result;
-import hu.bets.points.dbaccess.MongoBasedScoresServiceDAO;
+import hu.bets.points.utils.JsonUtils;
+import hu.bets.points.web.model.ResultResponse;
 import hu.bets.steps.Given;
 import hu.bets.steps.When;
 import hu.bets.steps.util.ApplicationContextHolder;
-import hu.bets.points.utils.JsonUtils;
-import hu.bets.points.web.model.ResultResponse;
 import org.apache.http.HttpResponse;
 import org.apache.http.util.EntityUtils;
 import org.bson.Document;
 import org.junit.After;
+import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.springframework.context.ApplicationContext;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
+import utils.TestConsumer;
 import utils.TestUtils;
 
 import javax.ws.rs.core.Response;
-import java.io.IOException;
 import java.time.LocalDateTime;
-import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -46,7 +46,7 @@ import static org.junit.Assert.assertNotNull;
 import static utils.TestUtils.CORRECT_MATCH_END_PAYLOAD;
 import static utils.TestUtils.getRecord;
 
-public class SaveMatchIntegrationTest {
+public class IntegrationTest {
 
     @BeforeClass
     public static void setup() throws Exception {
@@ -58,14 +58,19 @@ public class SaveMatchIntegrationTest {
         TimeUnit.SECONDS.sleep(2);
     }
 
+    @AfterClass
+    public static void tearDown() throws Exception {
+        Given.environmentIsShutDown();
+    }
+
     @After
     public void after() {
-        ApplicationContextHolder.getBean(Jedis.class).flushAll();
+        ApplicationContextHolder.getBean(JedisPool.class).getResource().flushAll();
         FakeDatabaseConfig.FongoResultsCollectionHolder.getMatchResultCollection().drop();
         FakeDatabaseConfig.FongoResultsCollectionHolder.getScoresCollection().drop();
     }
 
-    private static final int DB_INDEX = 1;
+    private static final int MATCH_COLLECTION_INDEX = 1;
     private static final long WAIT_TIME_SECONDS = 3;
 
     private Bet bet1 = new Bet("user1", "match100", new Result("match100", "compId100", "team1", "team2", 3, 1), "bet100");
@@ -147,21 +152,18 @@ public class SaveMatchIntegrationTest {
         matchDAO.saveMatch(getRecord(out, "match9"));
         matchDAO.saveMatch(getRecord(in, "match10"));
 
-        matchDAO.betProcessingFailedFor("match1");
-        matchDAO.betProcessingFailedFor("match2");
-        matchDAO.betProcessingFailedFor("match9");
-        matchDAO.betProcessingFailedFor("match10");
+        matchDAO.saveNonProcessedMatches(Sets.newHashSet("match1", "match2", "match9", "match10"));
 
-        assertEquals(Arrays.asList("match1", "match10"), matchDAO.getFailedMatchIds());
+        assertEquals(Sets.newHashSet("match1", "match10"), matchDAO.getFailedMatchIds());
     }
 
     @Test
     public void testIncomingBetBatchHandling() throws Exception {
-        Jedis cache = ApplicationContextHolder.getBean(Jedis.class);
+        Jedis jedis = ApplicationContextHolder.getBean(JedisPool.class).getResource();
 
         Channel senderChannel = ApplicationContextHolder.getBean(Channel.class);
         Channel receiverChannel = ApplicationContextHolder.getBean(Channel.class);
-        TestCosumer testConsumer = new TestCosumer(receiverChannel);
+        TestConsumer testConsumer = new TestConsumer(receiverChannel);
 
         receiverChannel.queueBind(MessagingConstants.SCORES_TO_BETS_QUEUE, MessagingConstants.EXCHANGE_NAME, MessagingConstants.SCORES_TO_BETS_ROUTE);
         receiverChannel.basicConsume(MessagingConstants.SCORES_TO_BETS_QUEUE, true, testConsumer);
@@ -173,8 +175,8 @@ public class SaveMatchIntegrationTest {
 
         BetBatch betBatch = new BetBatch(3, bets, new MD5HashGenerator().getHash(bets));
 
-        cache.select(DB_INDEX);
-        cache.set("match100", new JsonUtils().toJson(result1.getResult()));
+        jedis.select(MATCH_COLLECTION_INDEX);
+        jedis.set("match100", new JsonUtils().toJson(result1.getResult()));
         matchCollection.insertOne(Document.parse(new JsonUtils().toJson(result2)));
 
         senderChannel.basicPublish(MessagingConstants.EXCHANGE_NAME, MessagingConstants.BETS_TO_SCORES_ROUTE, null, new JsonUtils().toJson(betBatch).getBytes());
@@ -189,16 +191,14 @@ public class SaveMatchIntegrationTest {
 
     @Test
     public void correctIncomingPayloadShouldBeSavedInTheDatabaseAndBetsRequested() throws Exception {
-
         String uniqueId = "UniqueID";
 
         Channel senderChannel = ApplicationContextHolder.getBean(Channel.class);
         Channel receiverChannel = ApplicationContextHolder.getBean(Channel.class);
-        TestCosumer testConsumer = new TestCosumer(receiverChannel);
+        TestConsumer testConsumer = new TestConsumer(receiverChannel);
 
         receiverChannel.queueBind(MessagingConstants.SCORES_TO_BETS_QUEUE, MessagingConstants.EXCHANGE_NAME, MessagingConstants.SCORES_TO_BETS_ROUTE);
         receiverChannel.basicConsume(MessagingConstants.SCORES_TO_BETS_QUEUE, true, testConsumer);
-
 
         String endpoint = "http://" + EnvironmentVarResolver.getEnvVar("HOST") +
                 ":" + EnvironmentVarResolver.getEnvVar("PORT") + "/scores/football/v1/results/" + uniqueId;
@@ -217,31 +217,13 @@ public class SaveMatchIntegrationTest {
                 .find(Filters.eq("result.matchId", uniqueId))
                 .first());
 
-        assertNotNull(ApplicationContextHolder.getBean(Jedis.class).get(uniqueId));
+        Jedis jedis = ApplicationContextHolder.getBean(JedisPool.class).getResource();
+        jedis.select(MATCH_COLLECTION_INDEX);
+        assertNotNull(jedis.get(uniqueId));
 
         assertEquals("{\"payload\":[\"" + uniqueId + "\"],\"type\":\"BETS_REQUEST\"}", testConsumer.getMessage());
 
         senderChannel.close();
         receiverChannel.close();
     }
-
-    private static class TestCosumer extends DefaultConsumer {
-
-        private String message;
-
-        public TestCosumer(Channel channel) {
-            super(channel);
-        }
-
-        @Override
-        public void handleDelivery(String consumerTag, Envelope envelope,
-                                   AMQP.BasicProperties properties, byte[] body) throws IOException {
-            message = new String(body, "UTF-8");
-        }
-
-        public String getMessage() {
-            return message;
-        }
-    }
-
 }

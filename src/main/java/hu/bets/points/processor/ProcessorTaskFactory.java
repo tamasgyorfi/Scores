@@ -1,16 +1,18 @@
 package hu.bets.points.processor;
 
 import java.util.Map;
+import java.util.Optional;
 
 public class ProcessorTaskFactory {
 
-    private Map<String, AbstractProcessorTask<?>> tasks;
+    private Map<String, ProcessorTask> tasks;
 
-    public ProcessorTaskFactory(Map<String, AbstractProcessorTask<?>> tasks) {
+    public ProcessorTaskFactory(Map<String, ProcessorTask> tasks) {
         this.tasks = tasks;
     }
 
-    public AbstractProcessorTask<?> taskFor(Type type, String payload) {
-        return tasks.get(type.name()).withPayLoad(payload);
+    public ProcessorTask taskFor(Type type, Optional<String> payload) {
+        ProcessorTask processorTask = tasks.get(type.name());
+        return processorTask.withPayLoad(payload);
     }
 }

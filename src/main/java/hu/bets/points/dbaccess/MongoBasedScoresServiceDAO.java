@@ -13,10 +13,13 @@ import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.springframework.beans.factory.annotation.Value;
 import redis.clients.jedis.Jedis;
+import redis.clients.jedis.JedisPool;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.*;
+import java.util.HashSet;
+import java.util.Optional;
+import java.util.Set;
 import java.util.function.Consumer;
 
 import static hu.bets.points.dbaccess.DatabaseFields.MATCH_DATE;
@@ -32,21 +35,21 @@ public class MongoBasedScoresServiceDAO implements ScoresServiceDAO {
 
     private MongoCollection<Document> matchCollection;
     private MongoCollection<Document> scoreCollection;
-    private Jedis cacheCollection;
+    private JedisPool cachePool;
 
     @Value("${match.cache.expiration.seconds:3000}")
-    private int matchExpiration;
+    protected int matchExpiration;
     @Value("${match.retry.threshold.hours:24}")
-    private int retryThreshold;
+    protected int retryThreshold;
     @Value("${cache.lock.acquire.expiration.millis:1000}")
     private int lockAcquireExpiration;
     @Value("${cache.lock.expiration.millis:1000}")
     private int lockExpiration;
 
-    public MongoBasedScoresServiceDAO(MongoCollection<Document> matchCollection, MongoCollection<Document> scoreCollection, Jedis cacheCollection) {
+    public MongoBasedScoresServiceDAO(MongoCollection<Document> matchCollection, MongoCollection<Document> scoreCollection, JedisPool cachePool) {
         this.matchCollection = matchCollection;
         this.scoreCollection = scoreCollection;
-        this.cacheCollection = cacheCollection;
+        this.cachePool = cachePool;
     }
 
     @Override
@@ -57,13 +60,7 @@ public class MongoBasedScoresServiceDAO implements ScoresServiceDAO {
     }
 
     @Override
-    public void betProcessingFailedFor(String matchId) {
-        cacheCollection.select(UNPROCESSED_MATCHES_COLLECTION);
-        cacheCollection.set(matchId, matchId);
-    }
-
-    @Override
-    public Collection<String> getFailedMatchIds() {
+    public Set<String> getFailedMatchIds() {
         Set<String> unprocessedMatches = getUnprocessedMatches();
         return filterUnprocessedMatches(unprocessedMatches);
     }
@@ -90,22 +87,25 @@ public class MongoBasedScoresServiceDAO implements ScoresServiceDAO {
                 return dbResult;
             }
         }
-
         return cachedResult;
     }
 
     @Override
     public void saveNonProcessedMatches(Set<String> unprocessedMatches) {
-        cacheCollection.select(UNPROCESSED_MATCHES_COLLECTION);
+        try (Jedis jedis = cachePool.getResource()) {
+            jedis.select(UNPROCESSED_MATCHES_COLLECTION);
 
-        for (String matchId : unprocessedMatches) {
-            cacheCollection.set(matchId, matchId);
+            for (String matchId : unprocessedMatches) {
+                jedis.set(matchId, matchId);
+            }
         }
     }
 
     private void cacheResult(String matchId, Result result) {
-        cacheCollection.select(MATCH_RESULTS_COLLECTION);
-        cacheCollection.setex(matchId, matchExpiration, JSON_UTILS.toJson(result));
+        try (Jedis jedis = cachePool.getResource()) {
+            jedis.select(MATCH_RESULTS_COLLECTION);
+            jedis.setex(matchId, matchExpiration, JSON_UTILS.toJson(result));
+        }
     }
 
     private Optional<Result> findMatchInDatabase(String matchId) {
@@ -118,15 +118,18 @@ public class MongoBasedScoresServiceDAO implements ScoresServiceDAO {
     }
 
     private Optional<Result> findMatchInCache(String matchId) {
-        cacheCollection.select(MATCH_RESULTS_COLLECTION);
-        String json = cacheCollection.get(matchId);
-        if (json == null) {
-            return Optional.empty();
+        try (Jedis jedis = cachePool.getResource()) {
+
+            jedis.select(MATCH_RESULTS_COLLECTION);
+            String json = jedis.get(matchId);
+            if (json == null) {
+                return Optional.empty();
+            }
+            return Optional.of(JSON_UTILS.fromJson(json, Result.class));
         }
-        return Optional.of(JSON_UTILS.fromJson(json, Result.class));
     }
 
-    private Collection<String> filterUnprocessedMatches(Set<String> unprocessedMatches) {
+    private Set<String> filterUnprocessedMatches(Set<String> unprocessedMatches) {
 
         LocalDateTime thresholdDate = getCurrentTime().minusHours(retryThreshold);
 
@@ -136,11 +139,10 @@ public class MongoBasedScoresServiceDAO implements ScoresServiceDAO {
         );
 
         FindIterable<Document> documents = matchCollection.find(query);
-        List<String> result = new LinkedList<>();
+        Set<String> result = new HashSet<>();
 
-        documents.forEach((Consumer<Document>) document -> {
-            result.add(JSON_UTILS.fromJson(document.toJson(), MatchResult.class).getResult().getMatchId());
-        });
+        documents.forEach((Consumer<Document>) document ->
+                result.add(JSON_UTILS.fromJson(document.toJson(), MatchResult.class).getResult().getMatchId()));
 
         LOGGER.info("Unprocessed messages from the database: " + result);
         return result;
@@ -148,25 +150,27 @@ public class MongoBasedScoresServiceDAO implements ScoresServiceDAO {
 
     private Set<String> getUnprocessedMatches() {
 
-        JedisLock lock = new JedisLock(cacheCollection, "processingLock", lockAcquireExpiration, lockExpiration);
-        Set<String> resultRecords = new HashSet<>();
+        try (Jedis jedis = cachePool.getResource()) {
+            JedisLock lock = new JedisLock(jedis, "processingLock", lockAcquireExpiration, lockExpiration);
+            Set<String> resultRecords = new HashSet<>();
 
-        try {
-            if (lock.acquire()) {
-                cacheCollection.select(UNPROCESSED_MATCHES_COLLECTION);
-                try {
-                    resultRecords.addAll(cacheCollection.keys("*"));
-                    cacheCollection.flushDB();
-                } catch (Exception e) {
-                    lock.release();
+            try {
+                if (lock.acquire()) {
+                    jedis.select(UNPROCESSED_MATCHES_COLLECTION);
+                    try {
+                        resultRecords.addAll(jedis.keys("*"));
+                        jedis.flushDB();
+                    } catch (Exception e) {
+                        lock.release();
+                    }
                 }
+            } catch (InterruptedException e) {
+                // Nothing to do here.
             }
-        } catch (InterruptedException e) {
-            // Nothing to do here.
-        }
 
-        LOGGER.info("Unprocessed match IDs from redis: " + resultRecords);
-        return resultRecords;
+            LOGGER.info("Unprocessed match IDs from redis: " + resultRecords);
+            return resultRecords;
+        }
     }
 
     public LocalDateTime getCurrentTime() {

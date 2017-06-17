@@ -9,6 +9,7 @@ import hu.bets.points.processor.Type;
 import org.apache.log4j.Logger;
 
 import java.io.IOException;
+import java.util.Optional;
 
 public class MessageConsumer extends DefaultConsumer {
 
@@ -25,6 +26,6 @@ public class MessageConsumer extends DefaultConsumer {
                                AMQP.BasicProperties properties, byte[] body) throws IOException {
         String message = new String(body, "UTF-8");
         LOGGER.info("Received message: " + message);
-        commonExecutor.enqueue(message, Type.ACKNOWLEDGE_REQUEST);
+        commonExecutor.enqueue(Optional.of(message), Type.ACKNOWLEDGE_REQUEST);
     }
 }
