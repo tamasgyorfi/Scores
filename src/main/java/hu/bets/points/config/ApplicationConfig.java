@@ -4,7 +4,7 @@ import com.mongodb.client.MongoCollection;
 import hu.bets.common.config.model.CommonConfig;
 import hu.bets.common.util.hash.MD5HashGenerator;
 import hu.bets.common.util.schema.SchemaValidator;
-import hu.bets.points.dbaccess.MongoBasedScoresServiceDAO;
+import hu.bets.points.dbaccess.DefaultScoresServiceDAO;
 import hu.bets.points.dbaccess.ScoresServiceDAO;
 import hu.bets.points.processor.CommonExecutor;
 import hu.bets.points.model.ProcessingResult;
@@ -59,7 +59,7 @@ public class ApplicationConfig {
     public ScoresServiceDAO matchDAO(@Qualifier("ResultsCollection") MongoCollection matchResultCollection,
                                      @Qualifier("ScoresCollection") MongoCollection scoresCollection,
                                      JedisPool jedisPool) {
-        return new MongoBasedScoresServiceDAO(matchResultCollection, scoresCollection, jedisPool);
+        return new DefaultScoresServiceDAO(matchResultCollection, scoresCollection, jedisPool);
     }
 
     @Bean

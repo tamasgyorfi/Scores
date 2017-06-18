@@ -3,6 +3,7 @@ package integration;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.rabbitmq.client.Channel;
@@ -11,7 +12,7 @@ import hu.bets.common.util.hash.MD5HashGenerator;
 import hu.bets.points.config.ApplicationConfig;
 import hu.bets.points.config.MessagingConfig;
 import hu.bets.points.config.WebConfig;
-import hu.bets.points.dbaccess.MongoBasedScoresServiceDAO;
+import hu.bets.points.dbaccess.DefaultScoresServiceDAO;
 import hu.bets.points.messaging.MessagingConstants;
 import hu.bets.points.model.Bet;
 import hu.bets.points.model.BetBatch;
@@ -29,7 +30,6 @@ import org.junit.After;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.springframework.context.ApplicationContext;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import utils.TestConsumer;
@@ -136,7 +136,7 @@ public class IntegrationTest {
 
     @Test
     public void testRedisMongoInterpay() {
-        MongoBasedScoresServiceDAO matchDAO = ApplicationContextHolder.getBean(MongoBasedScoresServiceDAO.class);
+        DefaultScoresServiceDAO matchDAO = ApplicationContextHolder.getBean(DefaultScoresServiceDAO.class);
 
         LocalDateTime out = matchDAO.getCurrentTime().minusHours(48);
         LocalDateTime in = matchDAO.getCurrentTime().minusHours(8);
@@ -225,5 +225,18 @@ public class IntegrationTest {
 
         senderChannel.close();
         receiverChannel.close();
+    }
+
+    @Test
+    public void shouldSaveABetIdOnlyOnce() {
+        DefaultScoresServiceDAO matchDAO = ApplicationContextHolder.getBean(DefaultScoresServiceDAO.class);
+
+        Bet bet = new Bet("user1", "match1", new Result("match1", "comp1", "h", "a", 1, 1), "bet1");
+        matchDAO.savePoints(bet, 10);
+        matchDAO.savePoints(bet, 8);
+
+        long count = FakeDatabaseConfig.FongoResultsCollectionHolder.getScoresCollection().count(Filters.eq("betId", "bet1"));
+        assertEquals(1, count);
+
     }
 }

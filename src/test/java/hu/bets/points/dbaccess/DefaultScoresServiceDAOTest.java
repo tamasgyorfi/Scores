@@ -14,7 +14,6 @@ import hu.bets.points.model.Result;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -26,7 +25,6 @@ import redis.clients.jedis.JedisPool;
 
 import java.time.LocalDateTime;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
@@ -35,7 +33,7 @@ import static org.mockito.Mockito.*;
 import static utils.TestUtils.getRecord;
 
 @RunWith(MockitoJUnitRunner.class)
-public class MongoBasedScoresServiceDAOTest {
+public class DefaultScoresServiceDAOTest {
 
     static class MongoHolder {
         private static MongoDatabase fongo = new Fongo("fongo-server").getDatabase("test");
@@ -55,12 +53,12 @@ public class MongoBasedScoresServiceDAOTest {
     private JedisPool jedisPool;
     private Jedis cacheCollection = new MockJedis("test");
 
-    private MongoBasedScoresServiceDAO sut;
+    private DefaultScoresServiceDAO sut;
 
     @Before
     public void setp() {
         when(jedisPool.getResource()).thenReturn(cacheCollection);
-        sut = new FakeMongoBasedScoresServiceDAO(MongoHolder.getMatchCollection(), MongoHolder.getScoresCollection(), jedisPool);
+        sut = new FakeDefaultScoresServiceDAO(MongoHolder.getMatchCollection(), MongoHolder.getScoresCollection(), jedisPool);
     }
 
     @After
@@ -74,7 +72,7 @@ public class MongoBasedScoresServiceDAOTest {
     public void shouldSaveMatchResultToTheDatabase() {
         MongoCollection matchCollection = Mockito.mock(MongoCollection.class);
         MatchResult matchResult = getRecord(LocalDateTime.now(), "22");
-        sut = new MongoBasedScoresServiceDAO(matchCollection, null, jedisPool);
+        sut = new DefaultScoresServiceDAO(matchCollection, null, jedisPool);
         sut.saveMatch(matchResult);
 
         String json = new Gson().toJson(matchResult);
@@ -142,7 +140,7 @@ public class MongoBasedScoresServiceDAOTest {
     @Test
     public void shouldGetMatchResultFromTheCacheWhenPresent() throws InterruptedException {
         MongoCollection matchCollection = Mockito.mock(MongoCollection.class);
-        sut = new FakeMongoBasedScoresServiceDAO(matchCollection, MongoHolder.getScoresCollection(), jedisPool);
+        sut = new FakeDefaultScoresServiceDAO(matchCollection, MongoHolder.getScoresCollection(), jedisPool);
         sut.saveMatch(new MatchResult(getResult("id2"), sut.getCurrentTime()));
 
         Optional<Result> result = sut.getResult("id2");
@@ -155,7 +153,7 @@ public class MongoBasedScoresServiceDAOTest {
     @Test
     public void shouldGetMatchResultFromTheDbWhenCacheMiss() {
         Jedis cacheCollection = Mockito.mock(Jedis.class);
-        sut = new FakeMongoBasedScoresServiceDAO(MongoHolder.getMatchCollection(), MongoHolder.getScoresCollection(), jedisPool);
+        sut = new FakeDefaultScoresServiceDAO(MongoHolder.getMatchCollection(), MongoHolder.getScoresCollection(), jedisPool);
         sut.saveMatch(new MatchResult(getResult("id2"), sut.getCurrentTime()));
 
         when(cacheCollection.get("id2")).thenReturn(null);
@@ -166,8 +164,8 @@ public class MongoBasedScoresServiceDAOTest {
         return new Result(matchId, "comp1", "ht", "at", 1, 2);
     }
 
-    class FakeMongoBasedScoresServiceDAO extends MongoBasedScoresServiceDAO {
-        FakeMongoBasedScoresServiceDAO(MongoCollection matchCollection, MongoCollection scoresCollection, JedisPool jedisPool) {
+    class FakeDefaultScoresServiceDAO extends DefaultScoresServiceDAO {
+        FakeDefaultScoresServiceDAO(MongoCollection matchCollection, MongoCollection scoresCollection, JedisPool jedisPool) {
             super(matchCollection, scoresCollection, jedisPool);
             matchExpiration = 1;
         }

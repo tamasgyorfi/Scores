@@ -5,7 +5,7 @@ import com.rabbitmq.client.Channel;
 import hu.bets.points.config.ApplicationConfig;
 import hu.bets.points.config.MessagingConfig;
 import hu.bets.points.config.WebConfig;
-import hu.bets.points.dbaccess.MongoBasedScoresServiceDAO;
+import hu.bets.points.dbaccess.DefaultScoresServiceDAO;
 import hu.bets.points.dbaccess.ScoresServiceDAO;
 import hu.bets.points.messaging.MessagingConstants;
 import hu.bets.steps.Given;
@@ -48,7 +48,7 @@ public class RetryTest {
 
     @Test
     public void testReply() throws IOException, TimeoutException, InterruptedException {
-        MongoBasedScoresServiceDAO matchDAO = (MongoBasedScoresServiceDAO) ApplicationContextHolder.getBean(ScoresServiceDAO.class);
+        DefaultScoresServiceDAO matchDAO = (DefaultScoresServiceDAO) ApplicationContextHolder.getBean(ScoresServiceDAO.class);
 
         LocalDateTime in = LocalDateTime.now();
 

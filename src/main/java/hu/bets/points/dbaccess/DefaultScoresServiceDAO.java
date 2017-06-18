@@ -25,9 +25,9 @@ import java.util.function.Consumer;
 import static hu.bets.points.dbaccess.DatabaseFields.MATCH_DATE;
 import static hu.bets.points.dbaccess.DatabaseFields.MATCH_ID;
 
-public class MongoBasedScoresServiceDAO implements ScoresServiceDAO {
+public class DefaultScoresServiceDAO implements ScoresServiceDAO {
 
-    private static final Logger LOGGER = Logger.getLogger(MongoBasedScoresServiceDAO.class);
+    private static final Logger LOGGER = Logger.getLogger(DefaultScoresServiceDAO.class);
 
     private static final int UNPROCESSED_MATCHES_COLLECTION = 0;
     private static final int MATCH_RESULTS_COLLECTION = 1;
@@ -46,7 +46,7 @@ public class MongoBasedScoresServiceDAO implements ScoresServiceDAO {
     @Value("${cache.lock.expiration.millis:1000}")
     private int lockExpiration;
 
-    public MongoBasedScoresServiceDAO(MongoCollection<Document> matchCollection, MongoCollection<Document> scoreCollection, JedisPool cachePool) {
+    public DefaultScoresServiceDAO(MongoCollection<Document> matchCollection, MongoCollection<Document> scoreCollection, JedisPool cachePool) {
         this.matchCollection = matchCollection;
         this.scoreCollection = scoreCollection;
         this.cachePool = cachePool;
@@ -67,14 +67,18 @@ public class MongoBasedScoresServiceDAO implements ScoresServiceDAO {
 
     @Override
     public void savePoints(Bet bet, int value) {
-        Document toSave = new Document();
-        toSave.put("userId", bet.getUserId());
-        toSave.put("matchId", bet.getMatchId());
-        toSave.put("competitionId", bet.getResult().getCompetitionId());
-        toSave.put("betId", bet.getBetId());
-        toSave.put("points", value);
+        Document betDocument = scoreCollection.find(Filters.eq("betId", bet.getBetId())).first();
 
-        scoreCollection.insertOne(toSave);
+        if (betDocument == null) {
+            Document toSave = new Document();
+            toSave.put("userId", bet.getUserId());
+            toSave.put("matchId", bet.getMatchId());
+            toSave.put("competitionId", bet.getResult().getCompetitionId());
+            toSave.put("betId", bet.getBetId());
+            toSave.put("points", value);
+
+            scoreCollection.insertOne(toSave);
+        }
     }
 
     @Override
