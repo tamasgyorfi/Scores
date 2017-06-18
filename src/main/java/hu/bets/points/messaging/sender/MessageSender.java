@@ -2,7 +2,7 @@ package hu.bets.points.messaging.sender;
 
 import com.rabbitmq.client.Channel;
 import hu.bets.points.messaging.MessagingConstants;
-import hu.bets.points.processor.ProcessingResult;
+import hu.bets.points.model.ProcessingResult;
 import hu.bets.points.utils.JsonUtils;
 import org.apache.log4j.Logger;
 

@@ -1,5 +1,6 @@
 package hu.bets.points.processor;
 
+import hu.bets.points.model.ProcessingResult;
 import hu.bets.points.processor.betbatch.validation.InvalidBatchException;
 import org.apache.log4j.Logger;
 

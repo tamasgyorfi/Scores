@@ -1,7 +1,7 @@
 package hu.bets.points.processor.retry;
 
 import hu.bets.points.dbaccess.ScoresServiceDAO;
-import hu.bets.points.processor.ProcessingResult;
+import hu.bets.points.model.ProcessingResult;
 import hu.bets.points.processor.ProcessorTask;
 import hu.bets.points.processor.Type;
 import org.apache.log4j.Logger;

@@ -8,7 +8,7 @@ import hu.bets.points.model.Result;
 import hu.bets.points.dbaccess.ScoresServiceDAO;
 import hu.bets.points.services.points.PointsCalculatorService;
 import hu.bets.points.processor.AbstractValidatedProcessorTask;
-import hu.bets.points.processor.ProcessingResult;
+import hu.bets.points.model.ProcessingResult;
 import hu.bets.points.processor.betbatch.BetBatchTask;
 import hu.bets.points.processor.betbatch.processing.DefaultBetBatchProcessor;
 import hu.bets.points.processor.betbatch.validation.DefaultBetBatchValidator;

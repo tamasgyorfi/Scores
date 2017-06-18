@@ -8,7 +8,7 @@ import hu.bets.common.messaging.MessageListener;
 import hu.bets.points.processor.CommonExecutor;
 import hu.bets.points.messaging.receiver.MessageConsumer;
 import hu.bets.points.messaging.sender.MessageSender;
-import hu.bets.points.processor.ProcessingResult;
+import hu.bets.points.model.ProcessingResult;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

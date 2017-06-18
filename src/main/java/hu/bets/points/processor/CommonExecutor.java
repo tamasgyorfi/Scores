@@ -1,5 +1,7 @@
 package hu.bets.points.processor;
 
+import hu.bets.points.model.ProcessingResult;
+
 import java.util.Optional;
 import java.util.concurrent.CompletionService;
 

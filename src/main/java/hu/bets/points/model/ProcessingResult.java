@@ -1,4 +1,6 @@
-package hu.bets.points.processor;
+package hu.bets.points.model;
+
+import hu.bets.points.processor.Type;
 
 import java.util.Set;
 

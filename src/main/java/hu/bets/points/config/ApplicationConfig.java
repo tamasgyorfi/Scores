@@ -7,7 +7,7 @@ import hu.bets.common.util.schema.SchemaValidator;
 import hu.bets.points.dbaccess.MongoBasedScoresServiceDAO;
 import hu.bets.points.dbaccess.ScoresServiceDAO;
 import hu.bets.points.processor.CommonExecutor;
-import hu.bets.points.processor.ProcessingResult;
+import hu.bets.points.model.ProcessingResult;
 import hu.bets.points.processor.ProcessorTask;
 import hu.bets.points.processor.ProcessorTaskFactory;
 import hu.bets.points.processor.betbatch.BetBatchTask;
