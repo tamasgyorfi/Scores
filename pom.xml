@@ -121,7 +121,7 @@
         <dependency>
             <groupId>hu.bets</groupId>
             <artifactId>football-integration-test</artifactId>
-            <version>0.0.6</version>
+            <version>0.0.7</version>
             <scope>test</scope>
         </dependency>
 

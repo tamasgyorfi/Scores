@@ -3,7 +3,6 @@ package integration;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
-import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.rabbitmq.client.Channel;
@@ -86,7 +85,7 @@ public class IntegrationTest {
         String endpoint = "http://" + EnvironmentVarResolver.getEnvVar("HOST") +
                 ":" + EnvironmentVarResolver.getEnvVar("PORT") + "/scores/football/v1/results/AA-777-vxF";
 
-        HttpResponse httpResponse = When.iMakeAPostRequest(endpoint, "{\"payload\":\"none\"}");
+        HttpResponse httpResponse = When.iMakeAPutRequest(endpoint, "{\"payload\":\"none\"}");
         ResultResponse resultResponse = new Gson().fromJson(EntityUtils.toString(httpResponse.getEntity()), ResultResponse.class);
 
         assertEquals(Response.Status.INTERNAL_SERVER_ERROR, resultResponse.getResponseCode());
@@ -100,7 +99,7 @@ public class IntegrationTest {
         String endpoint = "http://" + EnvironmentVarResolver.getEnvVar("HOST") +
                 ":" + EnvironmentVarResolver.getEnvVar("PORT") + "/scores/football/v1/results/match100";
 
-        HttpResponse httpResponse = When.iMakeAPostRequest(endpoint, CORRECT_MATCH_END_PAYLOAD);
+        HttpResponse httpResponse = When.iMakeAPutRequest(endpoint, CORRECT_MATCH_END_PAYLOAD);
         ResultResponse resultResponse = new Gson().fromJson(EntityUtils.toString(httpResponse.getEntity()), ResultResponse.class);
 
         assertEquals(Response.Status.ACCEPTED, resultResponse.getResponseCode());
@@ -114,7 +113,7 @@ public class IntegrationTest {
         String endpoint = "http://" + EnvironmentVarResolver.getEnvVar("HOST") +
                 ":" + EnvironmentVarResolver.getEnvVar("PORT") + "/scores/football/v1/results/Unknown";
 
-        HttpResponse httpResponse = When.iMakeAPostRequest(endpoint, CORRECT_MATCH_END_PAYLOAD);
+        HttpResponse httpResponse = When.iMakeAPutRequest(endpoint, CORRECT_MATCH_END_PAYLOAD);
         ResultResponse resultResponse = new Gson().fromJson(EntityUtils.toString(httpResponse.getEntity()), ResultResponse.class);
 
         assertEquals(Response.Status.BAD_REQUEST, resultResponse.getResponseCode());
@@ -203,7 +202,7 @@ public class IntegrationTest {
         String endpoint = "http://" + EnvironmentVarResolver.getEnvVar("HOST") +
                 ":" + EnvironmentVarResolver.getEnvVar("PORT") + "/scores/football/v1/results/" + uniqueId;
 
-        HttpResponse httpResponse = When.iMakeAPostRequest(endpoint, TestUtils.getMatchEndPayload(uniqueId));
+        HttpResponse httpResponse = When.iMakeAPutRequest(endpoint, TestUtils.getMatchEndPayload(uniqueId));
         ResultResponse resultResponse = new Gson().fromJson(EntityUtils.toString(httpResponse.getEntity()), ResultResponse.class);
 
         assertEquals(Response.Status.ACCEPTED, resultResponse.getResponseCode());

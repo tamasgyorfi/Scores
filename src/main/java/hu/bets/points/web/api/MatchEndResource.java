@@ -34,7 +34,7 @@ public class MatchEndResource {
         return "<html><h1>Football-Scores up and running</h1></html>";
     }
 
-    @POST
+    @PUT
     @Path("results/{matchId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
