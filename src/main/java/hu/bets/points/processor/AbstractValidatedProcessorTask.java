@@ -2,14 +2,15 @@ package hu.bets.points.processor;
 
 import hu.bets.points.model.ProcessingResult;
 import hu.bets.points.processor.betbatch.validation.InvalidBatchException;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 import java.util.Set;
 
 public abstract class AbstractValidatedProcessorTask<T> implements ProcessorTask {
 
-    private static final Logger LOGGER = Logger.getLogger(AbstractValidatedProcessorTask.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractValidatedProcessorTask.class);
 
     private String payload;
     private final Validator<T> validator;

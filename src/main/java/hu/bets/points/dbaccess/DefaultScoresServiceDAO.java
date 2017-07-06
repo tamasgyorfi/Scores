@@ -8,9 +8,10 @@ import hu.bets.points.model.Bet;
 import hu.bets.points.model.MatchResult;
 import hu.bets.points.model.Result;
 import hu.bets.points.utils.JsonUtils;
-import org.apache.log4j.Logger;
 import org.bson.Document;
 import org.bson.conversions.Bson;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
@@ -27,7 +28,7 @@ import static hu.bets.points.dbaccess.DatabaseFields.MATCH_ID;
 
 public class DefaultScoresServiceDAO implements ScoresServiceDAO {
 
-    private static final Logger LOGGER = Logger.getLogger(DefaultScoresServiceDAO.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultScoresServiceDAO.class);
 
     private static final int UNPROCESSED_MATCHES_COLLECTION = 0;
     private static final int MATCH_RESULTS_COLLECTION = 1;

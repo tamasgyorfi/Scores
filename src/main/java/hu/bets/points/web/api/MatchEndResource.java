@@ -6,7 +6,8 @@ import hu.bets.points.processor.Type;
 import hu.bets.points.services.ResultHandlerService;
 import hu.bets.points.services.conversion.ModelConverterService;
 import hu.bets.points.web.model.ResultResponse;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -19,7 +20,7 @@ import java.util.Optional;
 @Path("/scores/football/v1")
 public class MatchEndResource {
 
-    private static final Logger LOGGER = Logger.getLogger(MatchEndResource.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(MatchEndResource.class);
 
     @Autowired
     private ResultHandlerService resultHandlerService;
@@ -42,7 +43,7 @@ public class MatchEndResource {
 
         LOGGER.info("Post request invoked. " + matchId + ": " + resultRequest);
         try {
-            validateAndConvert(matchId, resultRequest);
+            validate(matchId, resultRequest);
             commonExecutor.enqueue(Optional.of(resultRequest), Type.BETS_REQUEST);
             return ResultResponse.success(Response.Status.ACCEPTED, "Match results saved.");
         } catch (IllegalPayloadException e) {
@@ -52,13 +53,11 @@ public class MatchEndResource {
         }
     }
 
-    private SecureMatchResult validateAndConvert(String matchId, String resultRequest) {
+    private void validate(String matchId, String resultRequest) {
         SecureMatchResult matchResult = modelConverterService.convert(matchId, resultRequest);
         if (!matchResult.getMatchResult().getResult().getMatchId().equals(matchId)) {
             throw new IllegalPayloadException("MatchId mismatch.");
         }
         LOGGER.info("MatchResult resulting from conversion: " + matchResult);
-
-        return matchResult;
     }
 }

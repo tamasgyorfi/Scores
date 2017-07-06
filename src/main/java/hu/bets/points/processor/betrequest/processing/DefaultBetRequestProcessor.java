@@ -6,13 +6,14 @@ import hu.bets.points.dbaccess.DatabaseException;
 import hu.bets.points.dbaccess.ScoresServiceDAO;
 import hu.bets.points.services.MatchResultProcessingException;
 import hu.bets.points.services.conversion.IllegalJsonException;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Set;
 
 public class DefaultBetRequestProcessor implements BetRequestProcessor {
 
-    private static final Logger LOGGER = Logger.getLogger(DefaultBetRequestProcessor.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultBetRequestProcessor.class);
     private ScoresServiceDAO scoresServiceDAO;
 
     public DefaultBetRequestProcessor(ScoresServiceDAO scoresServiceDAO) {

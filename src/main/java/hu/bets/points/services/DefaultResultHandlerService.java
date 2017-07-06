@@ -1,15 +1,16 @@
 package hu.bets.points.services;
 
-import hu.bets.points.model.SecureMatchResult;
 import hu.bets.points.dbaccess.DatabaseException;
 import hu.bets.points.dbaccess.ScoresServiceDAO;
+import hu.bets.points.model.SecureMatchResult;
 import hu.bets.points.services.conversion.IllegalJsonException;
 import hu.bets.points.services.conversion.ModelConverterService;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 public class DefaultResultHandlerService implements ResultHandlerService {
 
-    private static final Logger LOGGER = Logger.getLogger(DefaultResultHandlerService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(DefaultResultHandlerService.class);
 
     private final ModelConverterService modelConverterService;
     private final ScoresServiceDAO scoresServiceDAO;

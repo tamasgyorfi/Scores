@@ -4,14 +4,15 @@ import hu.bets.points.dbaccess.ScoresServiceDAO;
 import hu.bets.points.model.ProcessingResult;
 import hu.bets.points.processor.ProcessorTask;
 import hu.bets.points.processor.Type;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
 import java.util.Set;
 
 public class RetryTask implements ProcessorTask {
 
-    private static final Logger LOGGER = Logger.getLogger(RetryTask.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RetryTask.class);
 
     private ScoresServiceDAO dataAccess;
 

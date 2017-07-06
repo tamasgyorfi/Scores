@@ -2,7 +2,8 @@ package hu.bets.points.processor.retry;
 
 import hu.bets.points.processor.CommonExecutor;
 import hu.bets.points.processor.Type;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
 import java.util.Optional;
@@ -11,7 +12,7 @@ import java.util.concurrent.TimeUnit;
 
 public class RetryTaskRunner {
 
-    private static final Logger LOGGER = Logger.getLogger(RetryTaskRunner.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RetryTaskRunner.class);
 
     @Value("${retry.interval.seconds:3600}")
     int retryInterval;

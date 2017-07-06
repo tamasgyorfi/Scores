@@ -6,14 +6,15 @@ import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
 import hu.bets.points.processor.CommonExecutor;
 import hu.bets.points.processor.Type;
-import org.apache.log4j.Logger;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
 import java.util.Optional;
 
 public class MessageConsumer extends DefaultConsumer {
 
-    private static Logger LOGGER = Logger.getLogger(MessageConsumer.class);
+    private static Logger LOGGER = LoggerFactory.getLogger(MessageConsumer.class);
     private final CommonExecutor commonExecutor;
 
     public MessageConsumer(Channel channel, CommonExecutor commonExecutor) {
