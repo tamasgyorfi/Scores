@@ -39,17 +39,17 @@ public class MatchEndResource {
     @Path("results/{matchId}")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public ResultResponse postResult(@PathParam("matchId") String matchId, String resultRequest) {
+    public String postResult(@PathParam("matchId") String matchId, String resultRequest) {
 
         LOGGER.info("Post request invoked. " + matchId + ": " + resultRequest);
         try {
             validate(matchId, resultRequest);
             commonExecutor.enqueue(Optional.of(resultRequest), Type.BETS_REQUEST);
-            return ResultResponse.success(Response.Status.ACCEPTED, "Match results saved.");
+            return ResultResponse.success(Response.Status.ACCEPTED, "Match results saved.").asJson();
         } catch (IllegalPayloadException e) {
-            return ResultResponse.error(Response.Status.BAD_REQUEST, e.getMessage());
+            return ResultResponse.error(Response.Status.BAD_REQUEST, e.getMessage()).asJson();
         } catch (Exception e) {
-            return ResultResponse.error(Response.Status.INTERNAL_SERVER_ERROR, e.getMessage());
+            return ResultResponse.error(Response.Status.INTERNAL_SERVER_ERROR, e.getMessage()).asJson();
         }
     }
 

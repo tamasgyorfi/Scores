@@ -1,5 +1,7 @@
 package hu.bets.points.web.model;
 
+import com.google.gson.Gson;
+
 import javax.ws.rs.core.Response;
 
 public class ResultResponse {
@@ -32,5 +34,9 @@ public class ResultResponse {
 
     public String getError() {
         return error;
+    }
+
+    public String asJson() {
+        return new Gson().toJson(this);
     }
 }

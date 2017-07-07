@@ -4,6 +4,8 @@ import com.mongodb.client.MongoCollection;
 import hu.bets.common.config.model.CommonConfig;
 import hu.bets.common.util.hash.MD5HashGenerator;
 import hu.bets.common.util.schema.SchemaValidator;
+import hu.bets.common.util.servicediscovery.DefaultEurekaFacade;
+import hu.bets.common.util.servicediscovery.EurekaFacade;
 import hu.bets.points.dbaccess.DefaultScoresServiceDAO;
 import hu.bets.points.dbaccess.ScoresServiceDAO;
 import hu.bets.points.processor.CommonExecutor;
@@ -130,5 +132,10 @@ public class ApplicationConfig {
         configurer.setLocation(new ClassPathResource("values.properties"));
 
         return configurer;
+    }
+
+    @Bean
+    public EurekaFacade eurekaFacade() {
+        return new DefaultEurekaFacade();
     }
 }

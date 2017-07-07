@@ -51,7 +51,7 @@ public class DatabaseConfig {
     @Bean
     public JedisPool jedisPool() throws Exception {
         JedisPoolConfig poolConfig = new JedisPoolConfig();
-        poolConfig.setMaxTotal(10);
+        poolConfig.setMaxTotal(124);
         return new JedisPool(poolConfig, new URI(EnvironmentVarResolver.getEnvVar(REDIS_URL)));
     }
 
