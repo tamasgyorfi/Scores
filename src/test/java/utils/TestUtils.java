@@ -15,18 +15,20 @@ public class TestUtils {
     }
 
     public static final String getMatchEndPayload(String matchId) {
-        return "{  \n" +
-                "   \"matchResult\":{  \n" +
-                "      \"result\":{  \n" +
-                "         \"matchId\":\""+matchId+"\",\n" +
-                "         \"competitionId\":\"compId100\",\n" +
-                "         \"homeTeamId\":\"team1\",\n" +
-                "         \"awayTeamId\":\"team2\",\n" +
-                "         \"homeTeamGoals\":1,\n" +
-                "         \"awayTeamGoals\":1\n" +
+        return "{\n" +
+                "   \"results\":[\n" +
+                "      {\n" +
+                "         \"result\":{\n" +
+                "            \"homeTeamName\":\"Kayserispor\",\n" +
+                "            \"awayTeamName\":\"Basaksehir FK\",\n" +
+                "            \"matchId\":\"" + matchId + "\",\n" +
+                "            \"competitionId\":\"Super Lig\",\n" +
+                "            \"homeTeamGoals\":0,\n" +
+                "            \"awayTeamGoals\":1\n" +
+                "         }\n" +
                 "      }\n" +
-                "   },\n" +
-                "   \"securityToken\":\"ashdj\"\n" +
+                "   ],\n" +
+                "   \"token\":\"token-to-be-filled\"\n" +
                 "}";
     }
 }

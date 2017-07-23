@@ -8,8 +8,8 @@ import hu.bets.common.util.servicediscovery.DefaultEurekaFacade;
 import hu.bets.common.util.servicediscovery.EurekaFacade;
 import hu.bets.points.dbaccess.DefaultScoresServiceDAO;
 import hu.bets.points.dbaccess.ScoresServiceDAO;
-import hu.bets.points.processor.CommonExecutor;
 import hu.bets.points.model.ProcessingResult;
+import hu.bets.points.processor.CommonExecutor;
 import hu.bets.points.processor.ProcessorTask;
 import hu.bets.points.processor.ProcessorTaskFactory;
 import hu.bets.points.processor.betbatch.BetBatchTask;
@@ -24,7 +24,6 @@ import hu.bets.points.processor.betrequest.validation.BetRequestValidator;
 import hu.bets.points.processor.betrequest.validation.DefaultBetRequestValidator;
 import hu.bets.points.processor.retry.RetryTask;
 import hu.bets.points.processor.retry.RetryTaskRunner;
-import hu.bets.points.services.DefaultResultHandlerService;
 import hu.bets.points.services.ResultHandlerService;
 import hu.bets.points.services.conversion.DefaultModelConverterService;
 import hu.bets.points.services.conversion.ModelConverterService;
@@ -50,11 +49,6 @@ public class ApplicationConfig {
     @Bean
     public ModelConverterService modelConverterService(SchemaValidator schemaValidator) {
         return new DefaultModelConverterService(schemaValidator);
-    }
-
-    @Bean
-    public ResultHandlerService resultHandlerService(ModelConverterService modelConverterService, ScoresServiceDAO scoresServiceDAO) {
-        return new DefaultResultHandlerService(modelConverterService, scoresServiceDAO);
     }
 
     @Bean

@@ -1,60 +1,81 @@
 {
-  "$schema":"http://json-schema.org/schema#",
-  "additionalProperties":true,
-  "definitions":{
-
-  },
-  "id":"matchResult-request-schema",
-  "matchResult":{
-    "properties":{
-      "awayTeamGoals":{
-        "id":"/properties/awayTeamGoals",
-        "maximum":20,
-        "minimum":0,
-        "type":"integer"
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "definitions": {},
+  "id": "http://example.com/example.json",
+  "properties": {
+    "results": {
+      "id": "/properties/results",
+      "items": {
+        "id": "/properties/results/items",
+        "properties": {
+          "result": {
+            "id": "/properties/results/items/properties/result",
+            "properties": {
+              "awayTeamGoals": {
+                "id": "/properties/results/items/properties/result/properties/awayTeamGoals",
+                "maximum": 99,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "awayTeamName": {
+                "id": "/properties/results/items/properties/result/properties/awayTeamName",
+                "maxLength": 99,
+                "minLength": 1,
+                "type": "string"
+              },
+              "competitionId": {
+                "id": "/properties/results/items/properties/result/properties/competitionId",
+                "maxLength": 99,
+                "minLength": 1,
+                "type": "string"
+              },
+              "homeTeamGoals": {
+                "id": "/properties/results/items/properties/result/properties/homeTeamGoals",
+                "maximum": 99,
+                "minimum": 0,
+                "type": "integer"
+              },
+              "homeTeamName": {
+                "id": "/properties/results/items/properties/result/properties/homeTeamName",
+                "maxLength": 99,
+                "minLength": 1,
+                "type": "string"
+              },
+              "matchId": {
+                "id": "/properties/results/items/properties/result/properties/matchId",
+                "maxLength": 99,
+                "minLength": 1,
+                "type": "string"
+              }
+            },
+            "required": [
+              "homeTeamName",
+              "matchId",
+              "homeTeamGoals",
+              "awayTeamGoals",
+              "competitionId",
+              "awayTeamName"
+            ],
+            "type": "object"
+          }
+        },
+        "required": [
+          "result"
+        ],
+        "type": "object"
       },
-      "awayTeamId":{
-        "id":"/properties/awayTeamId",
-        "maxLength":25,
-        "minLength":1,
-        "type":"string"
-      },
-      "competitionId":{
-        "id":"/properties/competitionId",
-        "maxLength":25,
-        "minLength":1,
-        "type":"string"
-      },
-      "homeTeamGoals":{
-        "id":"/properties/homeTeamGoals",
-        "maximum":20,
-        "minimum":0,
-        "type":"integer"
-      },
-      "homeTeamId":{
-        "id":"/properties/homeTeamId",
-        "maxLength":25,
-        "minLength":1,
-        "type":"string"
-      },
-      "securityToken":{
-        "id":"/properties/securityToken",
-        "maxLength":25,
-        "minLength":1,
-        "type":"string"
-      },
-      "required":[
-        "awayTeamId",
-        "awayTeamGoals",
-        "competitionId",
-        "homeTeamId",
-        "homeTeamGoals"
-      ]
+      "type": "array"
+    },
+    "token": {
+      "id": "/properties/token",
+      "maxLength": 99,
+      "minLength": 1,
+      "type": "string"
     }
   },
-  "required":[
-    "matchResult",
-    "securityToken"
+  "required": [
+    "token",
+    "results"
   ],
-  "type":"object"
+  "type": "object"
 }

@@ -2,7 +2,7 @@ package hu.bets.points.services.conversion;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import hu.bets.common.util.schema.SchemaValidator;
-import hu.bets.points.model.SecureMatchResult;
+import hu.bets.points.model.MatchResultWithToken;
 
 public class DefaultModelConverterService implements ModelConverterService {
 
@@ -15,7 +15,7 @@ public class DefaultModelConverterService implements ModelConverterService {
     }
 
     @Override
-    public SecureMatchResult convert(String resultRequest) {
+    public MatchResultWithToken convert(String resultRequest) {
 
         validate(resultRequest);
         return convertResultRequest(resultRequest);
@@ -25,9 +25,9 @@ public class DefaultModelConverterService implements ModelConverterService {
         schemaValidator.validatePayload(resultRequest, "matchResult.request.schema.json");
     }
 
-    private SecureMatchResult convertResultRequest(String resultRequest) {
+    private MatchResultWithToken convertResultRequest(String resultRequest) {
         try {
-            return MAPPER.readValue(resultRequest, SecureMatchResult.class);
+            return MAPPER.readValue(resultRequest, MatchResultWithToken.class);
         } catch (Exception e) {
             throw new IllegalJsonException(e);
         }

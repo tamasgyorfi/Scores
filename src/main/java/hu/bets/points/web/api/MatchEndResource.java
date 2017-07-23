@@ -1,6 +1,6 @@
 package hu.bets.points.web.api;
 
-import hu.bets.points.model.SecureMatchResult;
+import hu.bets.points.model.MatchResultWithToken;
 import hu.bets.points.processor.CommonExecutor;
 import hu.bets.points.processor.Type;
 import hu.bets.points.services.ResultHandlerService;
@@ -22,8 +22,6 @@ public class MatchEndResource {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(MatchEndResource.class);
 
-    @Autowired
-    private ResultHandlerService resultHandlerService;
     @Autowired
     private ModelConverterService modelConverterService;
     @Autowired
@@ -54,7 +52,7 @@ public class MatchEndResource {
     }
 
     private void validate(String resultRequest) {
-        SecureMatchResult matchResult = modelConverterService.convert(resultRequest);
+        MatchResultWithToken matchResult = modelConverterService.convert(resultRequest);
         LOGGER.info("MatchResult resulting from conversion: " + matchResult);
     }
 }

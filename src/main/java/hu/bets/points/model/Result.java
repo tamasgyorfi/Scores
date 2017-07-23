@@ -8,8 +8,8 @@ public class Result {
     private final String matchId;
     private final String competitionId;
 
-    private final String homeTeamId;
-    private final String awayTeamId;
+    private final String homeTeamName;
+    private final String awayTeamName;
     private final int homeTeamGoals;
     private final int awayTeamGoals;
 
@@ -18,26 +18,26 @@ public class Result {
         matchId = null;
         awayTeamGoals = -1;
         homeTeamGoals = -1;
-        awayTeamId = null;
-        homeTeamId = null;
+        awayTeamName = null;
+        homeTeamName = null;
         competitionId = null;
     }
 
-    public Result(String matchId, String competitionId, String homeTeamId, String awayTeamId, int homeTeamGoals, int awayTeamGoals) {
+    public Result(String matchId, String competitionId, String homeTeamName, String awayTeamName, int homeTeamGoals, int awayTeamGoals) {
         this.matchId = matchId;
         this.competitionId = competitionId;
-        this.homeTeamId = homeTeamId;
-        this.awayTeamId = awayTeamId;
+        this.homeTeamName = homeTeamName;
+        this.awayTeamName = awayTeamName;
         this.homeTeamGoals = homeTeamGoals;
         this.awayTeamGoals = awayTeamGoals;
     }
 
-    public String getHomeTeamId() {
-        return homeTeamId;
+    public String getHomeTeamName() {
+        return homeTeamName;
     }
 
-    public String getAwayTeamId() {
-        return awayTeamId;
+    public String getAwayTeamName() {
+        return awayTeamName;
     }
 
     public int getHomeTeamGoals() {
@@ -68,16 +68,16 @@ public class Result {
         if (matchId != null ? !matchId.equals(result.matchId) : result.matchId != null) return false;
         if (competitionId != null ? !competitionId.equals(result.competitionId) : result.competitionId != null)
             return false;
-        if (homeTeamId != null ? !homeTeamId.equals(result.homeTeamId) : result.homeTeamId != null) return false;
-        return awayTeamId != null ? awayTeamId.equals(result.awayTeamId) : result.awayTeamId == null;
+        if (homeTeamName != null ? !homeTeamName.equals(result.homeTeamName) : result.homeTeamName != null) return false;
+        return awayTeamName != null ? awayTeamName.equals(result.awayTeamName) : result.awayTeamName == null;
     }
 
     @Override
     public int hashCode() {
         int result = matchId != null ? matchId.hashCode() : 0;
         result = 31 * result + (competitionId != null ? competitionId.hashCode() : 0);
-        result = 31 * result + (homeTeamId != null ? homeTeamId.hashCode() : 0);
-        result = 31 * result + (awayTeamId != null ? awayTeamId.hashCode() : 0);
+        result = 31 * result + (homeTeamName != null ? homeTeamName.hashCode() : 0);
+        result = 31 * result + (awayTeamName != null ? awayTeamName.hashCode() : 0);
         result = 31 * result + homeTeamGoals;
         result = 31 * result + awayTeamGoals;
         return result;
@@ -88,8 +88,8 @@ public class Result {
         return "Result{" +
                 "matchId='" + matchId + '\'' +
                 ", competitionId='" + competitionId + '\'' +
-                ", homeTeamId='" + homeTeamId + '\'' +
-                ", awayTeamId='" + awayTeamId + '\'' +
+                ", homeTeamName='" + homeTeamName + '\'' +
+                ", awayTeamName='" + awayTeamName + '\'' +
                 ", homeTeamGoals=" + homeTeamGoals +
                 ", awayTeamGoals=" + awayTeamGoals +
                 '}';

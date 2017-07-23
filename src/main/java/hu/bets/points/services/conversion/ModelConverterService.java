@@ -1,8 +1,8 @@
 package hu.bets.points.services.conversion;
 
-import hu.bets.points.model.SecureMatchResult;
+import hu.bets.points.model.MatchResultWithToken;
 
 public interface ModelConverterService {
 
-    SecureMatchResult convert(String resultRequest);
+    MatchResultWithToken convert(String resultRequest);
 }
