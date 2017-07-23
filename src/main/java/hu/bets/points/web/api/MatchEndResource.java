@@ -35,15 +35,15 @@ public class MatchEndResource {
         return "<html><h1>Football-Scores up and running</h1></html>";
     }
 
-    @PUT
-    @Path("results/{matchId}")
+    @POST
+    @Path("results")
     @Consumes(MediaType.APPLICATION_JSON)
     @Produces(MediaType.APPLICATION_JSON)
-    public String postResult(@PathParam("matchId") String matchId, String resultRequest) {
+    public String postResult(String resultRequest) {
 
-        LOGGER.info("Post request invoked. " + matchId + ": " + resultRequest);
+        LOGGER.info("Post request invoked. {}" , resultRequest);
         try {
-            validate(matchId, resultRequest);
+            validate(resultRequest);
             commonExecutor.enqueue(Optional.of(resultRequest), Type.BETS_REQUEST);
             return ResultResponse.success(Response.Status.ACCEPTED, "Match results saved.").asJson();
         } catch (IllegalPayloadException e) {
@@ -53,11 +53,8 @@ public class MatchEndResource {
         }
     }
 
-    private void validate(String matchId, String resultRequest) {
-        SecureMatchResult matchResult = modelConverterService.convert(matchId, resultRequest);
-        if (!matchResult.getMatchResult().getResult().getMatchId().equals(matchId)) {
-            throw new IllegalPayloadException("MatchId mismatch.");
-        }
+    private void validate(String resultRequest) {
+        SecureMatchResult matchResult = modelConverterService.convert(resultRequest);
         LOGGER.info("MatchResult resulting from conversion: " + matchResult);
     }
 }

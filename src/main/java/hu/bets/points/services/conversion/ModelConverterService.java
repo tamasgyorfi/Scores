@@ -4,5 +4,5 @@ import hu.bets.points.model.SecureMatchResult;
 
 public interface ModelConverterService {
 
-    SecureMatchResult convert(String matchId, String resultRequest);
+    SecureMatchResult convert(String resultRequest);
 }

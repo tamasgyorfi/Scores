@@ -23,7 +23,7 @@ public class DefaultResultHandlerService implements ResultHandlerService {
     @Override
     public void saveMatchResult(String matchId, String resultRequest) {
         try {
-            SecureMatchResult matchResult = modelConverterService.convert(matchId, resultRequest);
+            SecureMatchResult matchResult = modelConverterService.convert(resultRequest);
             LOGGER.info("MatchResult resulting from conversion: " + matchResult);
 
             scoresServiceDAO.saveMatch(matchResult.getMatchResult());

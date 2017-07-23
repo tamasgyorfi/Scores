@@ -15,17 +15,17 @@ public class DefaultModelConverterService implements ModelConverterService {
     }
 
     @Override
-    public SecureMatchResult convert(String matchId, String resultRequest) {
+    public SecureMatchResult convert(String resultRequest) {
 
         validate(resultRequest);
-        return convertResultRequest(matchId, resultRequest);
+        return convertResultRequest(resultRequest);
     }
 
     private void validate(String resultRequest) {
         schemaValidator.validatePayload(resultRequest, "matchResult.request.schema.json");
     }
 
-    private SecureMatchResult convertResultRequest(String matchId, String resultRequest) {
+    private SecureMatchResult convertResultRequest(String resultRequest) {
         try {
             return MAPPER.readValue(resultRequest, SecureMatchResult.class);
         } catch (Exception e) {

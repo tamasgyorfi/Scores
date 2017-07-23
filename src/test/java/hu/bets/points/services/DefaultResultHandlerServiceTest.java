@@ -32,7 +32,7 @@ public class DefaultResultHandlerServiceTest {
         SecureMatchResult secureMatchResult = Mockito.mock(SecureMatchResult.class);
         MatchResult matchResult = Mockito.mock(MatchResult.class);
 
-        Mockito.when(modelConverterService.convert("matchId1", "")).thenReturn(secureMatchResult);
+        Mockito.when(modelConverterService.convert("")).thenReturn(secureMatchResult);
         Mockito.when(secureMatchResult.getMatchResult()).thenReturn(matchResult);
         sut.saveMatchResult("matchId1", "");
 

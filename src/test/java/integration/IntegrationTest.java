@@ -83,9 +83,9 @@ public class IntegrationTest {
     public void resultShouldBeRejectedIfSchemaValidationFails() throws Exception {
 
         String endpoint = "http://" + EnvironmentVarResolver.getEnvVar("HOST") +
-                ":" + EnvironmentVarResolver.getEnvVar("PORT") + "/scores/football/v1/results/AA-777-vxF";
+                ":" + EnvironmentVarResolver.getEnvVar("PORT") + "/scores/football/v1/results";
 
-        HttpResponse httpResponse = When.iMakeAPutRequest(endpoint, "{\"payload\":\"none\"}");
+        HttpResponse httpResponse = When.iMakeAPostRequest(endpoint, "{\"payload\":\"none\"}");
         ResultResponse resultResponse = new Gson().fromJson(EntityUtils.toString(httpResponse.getEntity()), ResultResponse.class);
 
         assertEquals(Response.Status.INTERNAL_SERVER_ERROR, resultResponse.getResponseCode());
@@ -97,28 +97,14 @@ public class IntegrationTest {
     public void resultShouldBeSavedIfSchemaValidationPasses() throws Exception {
 
         String endpoint = "http://" + EnvironmentVarResolver.getEnvVar("HOST") +
-                ":" + EnvironmentVarResolver.getEnvVar("PORT") + "/scores/football/v1/results/match100";
+                ":" + EnvironmentVarResolver.getEnvVar("PORT") + "/scores/football/v1/results";
 
-        HttpResponse httpResponse = When.iMakeAPutRequest(endpoint, CORRECT_MATCH_END_PAYLOAD);
+        HttpResponse httpResponse = When.iMakeAPostRequest(endpoint, CORRECT_MATCH_END_PAYLOAD);
         ResultResponse resultResponse = new Gson().fromJson(EntityUtils.toString(httpResponse.getEntity()), ResultResponse.class);
 
         assertEquals(Response.Status.ACCEPTED, resultResponse.getResponseCode());
         assertEquals("", resultResponse.getError());
         assertEquals("Match results saved.", resultResponse.getResponsePayload());
-    }
-
-    @Test
-    public void resultShouldErrorIfMatchIdDoesNotMatchPayloadMatchId() throws Exception {
-
-        String endpoint = "http://" + EnvironmentVarResolver.getEnvVar("HOST") +
-                ":" + EnvironmentVarResolver.getEnvVar("PORT") + "/scores/football/v1/results/Unknown";
-
-        HttpResponse httpResponse = When.iMakeAPutRequest(endpoint, CORRECT_MATCH_END_PAYLOAD);
-        ResultResponse resultResponse = new Gson().fromJson(EntityUtils.toString(httpResponse.getEntity()), ResultResponse.class);
-
-        assertEquals(Response.Status.BAD_REQUEST, resultResponse.getResponseCode());
-        assertEquals("", resultResponse.getResponsePayload());
-        assertEquals("MatchId mismatch.", resultResponse.getError());
     }
 
     @Test
@@ -200,9 +186,9 @@ public class IntegrationTest {
         receiverChannel.basicConsume(MessagingConstants.SCORES_TO_BETS_QUEUE, true, testConsumer);
 
         String endpoint = "http://" + EnvironmentVarResolver.getEnvVar("HOST") +
-                ":" + EnvironmentVarResolver.getEnvVar("PORT") + "/scores/football/v1/results/" + uniqueId;
+                ":" + EnvironmentVarResolver.getEnvVar("PORT") + "/scores/football/v1/results";
 
-        HttpResponse httpResponse = When.iMakeAPutRequest(endpoint, TestUtils.getMatchEndPayload(uniqueId));
+        HttpResponse httpResponse = When.iMakeAPostRequest(endpoint, TestUtils.getMatchEndPayload(uniqueId));
         ResultResponse resultResponse = new Gson().fromJson(EntityUtils.toString(httpResponse.getEntity()), ResultResponse.class);
 
         assertEquals(Response.Status.ACCEPTED, resultResponse.getResponseCode());
