@@ -1,12 +1,17 @@
 package hu.bets.points.dbaccess;
 
 import com.github.jedis.lock.JedisLock;
+import com.mongodb.BasicDBObject;
+import com.mongodb.DBObject;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.UpdateOptions;
+import com.mongodb.util.JSON;
 import hu.bets.points.model.Bet;
 import hu.bets.points.model.MatchResult;
 import hu.bets.points.model.Result;
+import hu.bets.points.model.ToplistEntry;
 import hu.bets.points.utils.JsonUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
@@ -18,9 +23,7 @@ import redis.clients.jedis.JedisPool;
 
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.function.Consumer;
 
 import static hu.bets.points.dbaccess.DatabaseFields.MATCH_DATE;
@@ -36,6 +39,7 @@ public class DefaultScoresServiceDAO implements ScoresServiceDAO {
 
     private MongoCollection<Document> matchCollection;
     private MongoCollection<Document> scoreCollection;
+    private MongoCollection<Document> toplistCollection;
     private JedisPool cachePool;
 
     @Value("${match.cache.expiration.seconds:3000}")
@@ -47,9 +51,13 @@ public class DefaultScoresServiceDAO implements ScoresServiceDAO {
     @Value("${cache.lock.expiration.millis:1000}")
     private int lockExpiration;
 
-    public DefaultScoresServiceDAO(MongoCollection<Document> matchCollection, MongoCollection<Document> scoreCollection, JedisPool cachePool) {
+    public DefaultScoresServiceDAO(MongoCollection<Document> matchCollection,
+                                   MongoCollection<Document> scoreCollection,
+                                   MongoCollection<Document> toplistCollection,
+                                   JedisPool cachePool) {
         this.matchCollection = matchCollection;
         this.scoreCollection = scoreCollection;
+        this.toplistCollection = toplistCollection;
         this.cachePool = cachePool;
     }
 
@@ -68,6 +76,20 @@ public class DefaultScoresServiceDAO implements ScoresServiceDAO {
 
     @Override
     public void savePoints(Bet bet, int value) {
+        saveEntry(bet, value);
+        updateToplist(bet.getUserId(), value);
+    }
+
+    private void updateToplist(String userId, int value) {
+        Bson filter = Filters.eq("userId", userId);
+        Bson update = new BasicDBObject("$inc", new BasicDBObject("points", value)).append(
+                "$set", new BasicDBObject("userId", userId));
+        UpdateOptions options = new UpdateOptions().upsert(true);
+
+        toplistCollection.updateOne(filter, update, options);
+    }
+
+    private void saveEntry(Bet bet, int value) {
         Document betDocument = scoreCollection.find(Filters.eq("betId", bet.getBetId())).first();
 
         if (betDocument == null) {
@@ -104,6 +126,19 @@ public class DefaultScoresServiceDAO implements ScoresServiceDAO {
                 jedis.set(matchId, matchId);
             }
         }
+    }
+
+    @Override
+    public Map<String, Long> getToplistScore(List<String> userIds) {
+        Map<String, Long> result = new HashMap<>();
+
+        FindIterable<Document> documents = toplistCollection.find(Filters.in("userId", userIds));
+        documents.forEach((Consumer<Document>) document -> {
+                ToplistEntry entry = JSON_UTILS.fromJson(document.toJson(), ToplistEntry.class);
+                result.put(entry.getUserId(), entry.getPoints());
+        });
+        LOGGER.info("Resulting values for userIds: {} are: {}", userIds, result);
+        return result;
     }
 
     private void cacheResult(String matchId, Result result) {

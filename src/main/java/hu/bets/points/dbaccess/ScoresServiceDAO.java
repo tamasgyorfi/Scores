@@ -4,6 +4,8 @@ import hu.bets.points.model.Bet;
 import hu.bets.points.model.MatchResult;
 import hu.bets.points.model.Result;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
@@ -48,4 +50,11 @@ public interface ScoresServiceDAO {
      * @param unprocessedMatches
      */
     void saveNonProcessedMatches(Set<String> unprocessedMatches);
+
+    /**
+     * Retrieves scores for the id's supplied as parameter
+     * @param userIds
+     * @return mapping between userId - score
+     */
+    Map<String, Long> getToplistScore(List<String> userIds);
 }

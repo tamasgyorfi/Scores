@@ -6,26 +6,20 @@ import javax.ws.rs.core.Response;
 
 public class ResultResponse {
 
-    private Response.Status responseCode;
     private String responsePayload;
     private String error;
 
-    public static ResultResponse success(Response.Status responseCode, String responsePayload) {
-        return new ResultResponse(responseCode, responsePayload, "");
+    public static ResultResponse success(String responsePayload) {
+        return new ResultResponse(responsePayload, "");
     }
 
-    public static ResultResponse error(Response.Status responseCode, String error) {
-        return new ResultResponse(responseCode, "", error);
+    public static ResultResponse error(String error) {
+        return new ResultResponse("", error);
     }
 
-    private ResultResponse(Response.Status responseCode, String responsePayload, String error) {
-        this.responseCode = responseCode;
+    private ResultResponse(String responsePayload, String error) {
         this.responsePayload = responsePayload;
         this.error = error;
-    }
-
-    public Response.Status getResponseCode() {
-        return responseCode;
     }
 
     public String getResponsePayload() {

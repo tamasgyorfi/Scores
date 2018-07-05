@@ -39,6 +39,7 @@ public class DefaultScoresServiceDAOTest {
         private static MongoDatabase fongo = new Fongo("fongo-server").getDatabase("test");
         private static MongoCollection<Document> matchCollection = fongo.getCollection("matchCollection");
         private static MongoCollection<Document> scoresCollection = fongo.getCollection("scoresCollection");
+        private static MongoCollection<Document> toplistCollection = fongo.getCollection("toplistCollection");
 
         static MongoCollection getMatchCollection() {
             return matchCollection;
@@ -46,6 +47,10 @@ public class DefaultScoresServiceDAOTest {
 
         static MongoCollection getScoresCollection() {
             return scoresCollection;
+        }
+
+        static MongoCollection getToplistCollection() {
+            return toplistCollection;
         }
     }
 
@@ -56,9 +61,9 @@ public class DefaultScoresServiceDAOTest {
     private DefaultScoresServiceDAO sut;
 
     @Before
-    public void setp() {
+    public void setup() {
         when(jedisPool.getResource()).thenReturn(cacheCollection);
-        sut = new FakeDefaultScoresServiceDAO(MongoHolder.getMatchCollection(), MongoHolder.getScoresCollection(), jedisPool);
+        sut = new FakeDefaultScoresServiceDAO(MongoHolder.getMatchCollection(), MongoHolder.getScoresCollection(), MongoHolder.getToplistCollection(), jedisPool);
     }
 
     @After
@@ -66,13 +71,14 @@ public class DefaultScoresServiceDAOTest {
         cacheCollection.flushAll();
         MongoHolder.getScoresCollection().drop();
         MongoHolder.getMatchCollection().drop();
+        MongoHolder.getToplistCollection().drop();
     }
 
     @Test
     public void shouldSaveMatchResultToTheDatabase() {
         MongoCollection matchCollection = Mockito.mock(MongoCollection.class);
         MatchResult matchResult = getRecord(LocalDateTime.now(), "22");
-        sut = new DefaultScoresServiceDAO(matchCollection, null, jedisPool);
+        sut = new DefaultScoresServiceDAO(matchCollection, null, null, jedisPool);
         sut.saveMatch(matchResult);
 
         String json = new Gson().toJson(matchResult);
@@ -101,7 +107,7 @@ public class DefaultScoresServiceDAOTest {
     }
 
     @Test
-    public void shouldCorrectlySaveThePointsEntryIntoTheDatabase() {
+    public void shouldCorrectlySaveThePointsEntryIntoTheDatabaseUserNotInToplistCollection() {
         sut.savePoints(new Bet("user1", "match1", getResult("match1"), "betId"), 10);
 
         FindIterable<Document> documents = MongoHolder.getScoresCollection().find(Filters.eq("betId", "betId"));
@@ -118,6 +124,43 @@ public class DefaultScoresServiceDAOTest {
 
         assertTrue(document.containsKey("points"));
         assertEquals(document.get("points"), 10);
+
+        FindIterable<Document> toplist = MongoHolder.getToplistCollection().find(Filters.eq("userId", "user1"));
+        Document doc = toplist.first();
+
+        assertTrue(doc.containsKey("userId"));
+        assertTrue(doc.containsKey("points"));
+
+        assertEquals(doc.get("points"), 10);
+    }
+
+    @Test
+    public void shouldCorrectlySaveThePointsEntryIntoTheDatabaseUserInToplistCollection() {
+        MongoHolder.getToplistCollection().insertOne(new Document("userId", "user1").append("points", 13));
+        sut.savePoints(new Bet("user1", "match1", getResult("match1"), "betId"), 10);
+
+        FindIterable<Document> documents = MongoHolder.getScoresCollection().find(Filters.eq("betId", "betId"));
+        Document document = documents.first();
+
+        assertTrue(document.containsKey("userId"));
+        assertEquals(document.get("userId"), "user1");
+
+        assertTrue(document.containsKey("matchId"));
+        assertEquals(document.get("matchId"), "match1");
+
+        assertTrue(document.containsKey("competitionId"));
+        assertEquals(document.get("competitionId"), "comp1");
+
+        assertTrue(document.containsKey("points"));
+        assertEquals(document.get("points"), 10);
+
+        FindIterable<Document> toplist = MongoHolder.getToplistCollection().find(Filters.eq("userId", "user1"));
+        Document doc = toplist.first();
+
+        assertTrue(doc.containsKey("userId"));
+        assertTrue(doc.containsKey("points"));
+
+        assertEquals(doc.get("points"), 23);
     }
 
     @Test
@@ -140,7 +183,7 @@ public class DefaultScoresServiceDAOTest {
     @Test
     public void shouldGetMatchResultFromTheCacheWhenPresent() throws InterruptedException {
         MongoCollection matchCollection = Mockito.mock(MongoCollection.class);
-        sut = new FakeDefaultScoresServiceDAO(matchCollection, MongoHolder.getScoresCollection(), jedisPool);
+        sut = new FakeDefaultScoresServiceDAO(matchCollection, MongoHolder.getScoresCollection(), MongoHolder.getToplistCollection(), jedisPool);
         sut.saveMatch(new MatchResult(getResult("id2"), sut.getCurrentTime()));
 
         Optional<Result> result = sut.getResult("id2");
@@ -153,7 +196,7 @@ public class DefaultScoresServiceDAOTest {
     @Test
     public void shouldGetMatchResultFromTheDbWhenCacheMiss() {
         Jedis cacheCollection = Mockito.mock(Jedis.class);
-        sut = new FakeDefaultScoresServiceDAO(MongoHolder.getMatchCollection(), MongoHolder.getScoresCollection(), jedisPool);
+        sut = new FakeDefaultScoresServiceDAO(MongoHolder.getMatchCollection(), MongoHolder.getScoresCollection(), MongoHolder.getToplistCollection(), jedisPool);
         sut.saveMatch(new MatchResult(getResult("id2"), sut.getCurrentTime()));
 
         when(cacheCollection.get("id2")).thenReturn(null);
@@ -165,8 +208,8 @@ public class DefaultScoresServiceDAOTest {
     }
 
     class FakeDefaultScoresServiceDAO extends DefaultScoresServiceDAO {
-        FakeDefaultScoresServiceDAO(MongoCollection matchCollection, MongoCollection scoresCollection, JedisPool jedisPool) {
-            super(matchCollection, scoresCollection, jedisPool);
+        FakeDefaultScoresServiceDAO(MongoCollection matchCollection, MongoCollection scoresCollection, MongoCollection toplistCollection, JedisPool jedisPool) {
+            super(matchCollection, scoresCollection, toplistCollection, jedisPool);
             matchExpiration = 1;
         }
 

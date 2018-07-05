@@ -43,6 +43,7 @@ public class DefaultBetBatchProcessor implements BetBatchProcessor {
     }
 
     private void processOneMatch(Bet bet) {
+        System.out.println("processing: "+bet);
         try {
             Optional<Result> result = dataAccess.getResult(bet.getMatchId());
 

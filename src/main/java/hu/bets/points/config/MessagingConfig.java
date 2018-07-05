@@ -23,9 +23,9 @@ import static hu.bets.points.messaging.MessagingConstants.*;
 public class MessagingConfig {
 
     @Autowired
-    private Channel senderChannel;
+    protected Channel senderChannel;
     @Autowired
-    private Channel receiverChannel;
+    protected Channel receiverChannel;
 
     @Bean
     public Consumer consumer(CommonExecutor commonExecutor) {

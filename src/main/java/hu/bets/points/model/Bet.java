@@ -39,4 +39,14 @@ public class Bet {
     public String getBetId() {
         return betId;
     }
+
+    @Override
+    public String toString() {
+        return "Bet{" +
+                "matchId='" + matchId + '\'' +
+                ", betId='" + betId + '\'' +
+                ", userId='" + userId + '\'' +
+                ", result=" + result +
+                '}';
+    }
 }

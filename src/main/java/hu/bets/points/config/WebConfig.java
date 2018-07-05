@@ -2,7 +2,7 @@ package hu.bets.points.config;
 
 import hu.bets.common.config.CommonWebConfig;
 import hu.bets.common.config.model.Resources;
-import hu.bets.points.web.api.MatchEndResource;
+import hu.bets.points.web.api.ScoresResource;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Import;
@@ -12,12 +12,12 @@ import org.springframework.context.annotation.Import;
 public class WebConfig {
 
     @Bean
-    public Resources resources(MatchEndResource matchEndResource) {
-        return new Resources().addResource(matchEndResource);
+    public Resources resources(ScoresResource scoresResource) {
+        return new Resources().addResource(scoresResource);
     }
 
     @Bean
-    public MatchEndResource matchEndResource() {
-        return new MatchEndResource();
+    public ScoresResource matchEndResource() {
+        return new ScoresResource();
     }
 }

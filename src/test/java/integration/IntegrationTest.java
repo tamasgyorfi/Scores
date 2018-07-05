@@ -13,12 +13,10 @@ import hu.bets.points.config.MessagingConfig;
 import hu.bets.points.config.WebConfig;
 import hu.bets.points.dbaccess.DefaultScoresServiceDAO;
 import hu.bets.points.messaging.MessagingConstants;
-import hu.bets.points.model.Bet;
-import hu.bets.points.model.BetBatch;
-import hu.bets.points.model.MatchResult;
-import hu.bets.points.model.Result;
+import hu.bets.points.model.*;
 import hu.bets.points.utils.JsonUtils;
 import hu.bets.points.web.model.ResultResponse;
+import hu.bets.points.web.model.ToplistResponsePayload;
 import hu.bets.steps.Given;
 import hu.bets.steps.When;
 import hu.bets.steps.util.ApplicationContextHolder;
@@ -36,6 +34,8 @@ import utils.TestUtils;
 
 import javax.ws.rs.core.Response;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
@@ -67,6 +67,7 @@ public class IntegrationTest {
         ApplicationContextHolder.getBean(JedisPool.class).getResource().flushAll();
         FakeDatabaseConfig.FongoResultsCollectionHolder.getMatchResultCollection().drop();
         FakeDatabaseConfig.FongoResultsCollectionHolder.getScoresCollection().drop();
+        FakeDatabaseConfig.FongoResultsCollectionHolder.getScoresCollection().drop();
     }
 
     private static final int MATCH_COLLECTION_INDEX = 1;
@@ -88,8 +89,10 @@ public class IntegrationTest {
         HttpResponse httpResponse = When.iMakeAPostRequest(endpoint, "{\"payload\":\"none\"}");
         ResultResponse resultResponse = new Gson().fromJson(EntityUtils.toString(httpResponse.getEntity()), ResultResponse.class);
 
-        assertEquals(Response.Status.INTERNAL_SERVER_ERROR, resultResponse.getResponseCode());
-        assertTrue(resultResponse.getError().contains("org.everit.json.schema.ValidationException"));
+        assertEquals(Response.Status.INTERNAL_SERVER_ERROR.getStatusCode(), httpResponse.getStatusLine().getStatusCode());
+        assertTrue(resultResponse.getError().contains("#: 2 schema violations found\n" +
+                "#: required key [token] not found\n" +
+                "#: required key [results] not found"));
         assertEquals("", resultResponse.getResponsePayload());
     }
 
@@ -102,7 +105,7 @@ public class IntegrationTest {
         HttpResponse httpResponse = When.iMakeAPostRequest(endpoint, CORRECT_MATCH_END_PAYLOAD);
         ResultResponse resultResponse = new Gson().fromJson(EntityUtils.toString(httpResponse.getEntity()), ResultResponse.class);
 
-        assertEquals(Response.Status.ACCEPTED, resultResponse.getResponseCode());
+        assertEquals(Response.Status.ACCEPTED.getStatusCode(), httpResponse.getStatusLine().getStatusCode());
         assertEquals("", resultResponse.getError());
         assertEquals("Match results saved.", resultResponse.getResponsePayload());
     }
@@ -120,7 +123,7 @@ public class IntegrationTest {
     }
 
     @Test
-    public void testRedisMongoInterpay() {
+    public void testRedisMongoInterplay() {
         DefaultScoresServiceDAO matchDAO = ApplicationContextHolder.getBean(DefaultScoresServiceDAO.class);
 
         LocalDateTime out = matchDAO.getCurrentTime().minusHours(48);
@@ -165,7 +168,7 @@ public class IntegrationTest {
         matchCollection.insertOne(Document.parse(new JsonUtils().toJson(result2)));
 
         senderChannel.basicPublish(MessagingConstants.EXCHANGE_NAME, MessagingConstants.BETS_TO_SCORES_ROUTE, null, new JsonUtils().toJson(betBatch).getBytes());
-
+        receiverChannel.basicConsume(MessagingConstants.SCORES_TO_BETS_QUEUE, true, testConsumer);
         TimeUnit.SECONDS.sleep(WAIT_TIME_SECONDS);
 
         assertEquals("{\"payload\":[\"bet200\",\"bet100\"],\"type\":\"ACKNOWLEDGE_REQUEST\"}", testConsumer.getMessage());
@@ -191,7 +194,7 @@ public class IntegrationTest {
         HttpResponse httpResponse = When.iMakeAPostRequest(endpoint, TestUtils.getMatchEndPayload(uniqueId));
         ResultResponse resultResponse = new Gson().fromJson(EntityUtils.toString(httpResponse.getEntity()), ResultResponse.class);
 
-        assertEquals(Response.Status.ACCEPTED, resultResponse.getResponseCode());
+        assertEquals(Response.Status.ACCEPTED.getStatusCode(), httpResponse.getStatusLine().getStatusCode());
         assertEquals("", resultResponse.getError());
         assertEquals("Match results saved.", resultResponse.getResponsePayload());
 
@@ -222,6 +225,28 @@ public class IntegrationTest {
 
         long count = FakeDatabaseConfig.FongoResultsCollectionHolder.getScoresCollection().count(Filters.eq("betId", "bet1"));
         assertEquals(1, count);
+    }
 
+    @Test
+    public void shouldReturnPointsForUsers() throws Exception {
+
+        MongoCollection toplistCollection = FakeDatabaseConfig.FongoResultsCollectionHolder.getToplistCollection();
+
+
+        toplistCollection.insertOne(Document.parse("{\"userId\": \"user11\", \"points\": 10}"));
+        toplistCollection.insertOne(Document.parse("{\"userId\": \"user33\", \"points\": 17}"));
+
+        String endpoint = "http://" + EnvironmentVarResolver.getEnvVar("HOST") +
+                ":" + EnvironmentVarResolver.getEnvVar("PORT") + "/scores/football/v1/toplist";
+
+        HttpResponse httpResponse = When.iMakeAPostRequest(endpoint, TestUtils.getToplistPayload(Arrays.asList("user11", "user22", "user33")));
+        ToplistResponsePayload resultResponse = new Gson().fromJson(EntityUtils.toString(httpResponse.getEntity()), ToplistResponsePayload.class);
+
+        List<ToplistEntry> entries = new ArrayList<>();
+        entries.add(new ToplistEntry("user11", 10));
+        entries.add(new ToplistEntry("user22", 0));
+        entries.add(new ToplistEntry("user33", 17));
+
+        assertEquals(new ToplistResponsePayload(entries, ""), resultResponse);
     }
 }

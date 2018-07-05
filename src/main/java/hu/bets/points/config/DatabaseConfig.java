@@ -20,6 +20,7 @@ public class DatabaseConfig {
 
     private static final String DATABASE_NAME = "heroku_d2039chx";
     private static final String SCORES_COLLECTION_NAME = "Scores";
+    private static final String TOPLIST_COLLECTION_NAME = "Toplist";
     private static final String ERROR_COLLECTION_NAME = "Error";
     private static final String RESULTS_COLLECTION_NAME = "Results";
     private static final String REDIS_URL = "REDIS_URL";
@@ -40,6 +41,12 @@ public class DatabaseConfig {
     @Qualifier("ResultsCollection")
     public MongoCollection<Document> resultsCollection(MongoDatabase mongoDatabase) {
         return mongoDatabase.getCollection(RESULTS_COLLECTION_NAME);
+    }
+
+    @Bean
+    @Qualifier("ToplistCollection")
+    public MongoCollection<Document> toplistCollection(MongoDatabase mongoDatabase) {
+        return mongoDatabase.getCollection(TOPLIST_COLLECTION_NAME);
     }
 
     @Bean

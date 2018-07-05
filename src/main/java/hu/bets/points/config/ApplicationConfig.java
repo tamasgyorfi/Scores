@@ -2,10 +2,9 @@ package hu.bets.points.config;
 
 import com.mongodb.client.MongoCollection;
 import hu.bets.common.config.model.CommonConfig;
+import hu.bets.common.util.EnvironmentVarResolver;
 import hu.bets.common.util.hash.MD5HashGenerator;
 import hu.bets.common.util.schema.SchemaValidator;
-import hu.bets.common.util.servicediscovery.DefaultEurekaFacade;
-import hu.bets.common.util.servicediscovery.EurekaFacade;
 import hu.bets.points.dbaccess.DefaultScoresServiceDAO;
 import hu.bets.points.dbaccess.ScoresServiceDAO;
 import hu.bets.points.model.ProcessingResult;
@@ -24,11 +23,13 @@ import hu.bets.points.processor.betrequest.validation.BetRequestValidator;
 import hu.bets.points.processor.betrequest.validation.DefaultBetRequestValidator;
 import hu.bets.points.processor.retry.RetryTask;
 import hu.bets.points.processor.retry.RetryTaskRunner;
-import hu.bets.points.services.ResultHandlerService;
+import hu.bets.points.services.ToplistService;
+import hu.bets.points.services.ToplistServiceImpl;
 import hu.bets.points.services.conversion.DefaultModelConverterService;
 import hu.bets.points.services.conversion.ModelConverterService;
 import hu.bets.points.services.points.DefaultPointsCalculatorService;
 import hu.bets.points.services.points.PointsCalculatorService;
+import hu.bets.servicediscovery.EurekaFacadeImpl;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.context.annotation.Bean;
@@ -54,8 +55,9 @@ public class ApplicationConfig {
     @Bean
     public ScoresServiceDAO matchDAO(@Qualifier("ResultsCollection") MongoCollection matchResultCollection,
                                      @Qualifier("ScoresCollection") MongoCollection scoresCollection,
+                                     @Qualifier("ToplistCollection") MongoCollection toplistCollection,
                                      JedisPool jedisPool) {
-        return new DefaultScoresServiceDAO(matchResultCollection, scoresCollection, jedisPool);
+        return new DefaultScoresServiceDAO(matchResultCollection, scoresCollection, toplistCollection, jedisPool);
     }
 
     @Bean
@@ -129,7 +131,12 @@ public class ApplicationConfig {
     }
 
     @Bean
-    public EurekaFacade eurekaFacade() {
-        return new DefaultEurekaFacade();
+    public EurekaFacadeImpl eurekaFacade() {
+        return new EurekaFacadeImpl(new EnvironmentVarResolver().getEnvVar("EUREKA_URL"));
+    }
+
+    @Bean
+    public ToplistService toplistService(ScoresServiceDAO scoresServiceDAO) {
+        return new ToplistServiceImpl(scoresServiceDAO);
     }
 }

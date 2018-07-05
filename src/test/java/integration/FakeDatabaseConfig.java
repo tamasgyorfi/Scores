@@ -7,8 +7,6 @@ import org.bson.Document;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.context.annotation.Scope;
-import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 
@@ -27,6 +25,8 @@ public class FakeDatabaseConfig {
         private static MongoDatabase fongo = new Fongo("database-1").getDatabase("aaa");
         private static MongoCollection matchResultCollection = fongo.getCollection("matchResult");
         private static MongoCollection scoresCollection = fongo.getCollection("Scores");
+        private static MongoCollection toplistCollection = fongo.getCollection("Toplist");
+
 
         public static MongoCollection getMatchResultCollection() {
             return matchResultCollection;
@@ -34,6 +34,10 @@ public class FakeDatabaseConfig {
 
         public static MongoCollection getScoresCollection() {
             return scoresCollection;
+        }
+
+        public static MongoCollection getToplistCollection() {
+            return toplistCollection;
         }
 
     }
@@ -48,6 +52,12 @@ public class FakeDatabaseConfig {
     @Qualifier("ScoresCollection")
     public MongoCollection<Document> getScoresCollection() {
         return FongoResultsCollectionHolder.getScoresCollection();
+    }
+
+    @Bean
+    @Qualifier("ToplistCollection")
+    public MongoCollection<Document> getToplistCollection() {
+        return FongoResultsCollectionHolder.getToplistCollection();
     }
 
     @Bean

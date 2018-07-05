@@ -1,12 +1,12 @@
 package hu.bets;
 
 import hu.bets.common.messaging.MessageListener;
-import hu.bets.common.services.Services;
-import hu.bets.common.util.servicediscovery.EurekaFacade;
 import hu.bets.points.config.ApplicationConfig;
 import hu.bets.points.config.DatabaseConfig;
 import hu.bets.points.config.MessagingConfig;
 import hu.bets.points.config.WebConfig;
+import hu.bets.servicediscovery.EurekaFacade;
+import hu.bets.services.Services;
 import org.eclipse.jetty.server.Server;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;

@@ -72,7 +72,7 @@
         <dependency>
             <groupId>hu.bets</groupId>
             <artifactId>common-infrastructure</artifactId>
-            <version>1.0.14</version>
+            <version>1.0.18</version>
             <exclusions>
                 <exclusion>
                     <artifactId>jedis</artifactId>
@@ -85,6 +85,12 @@
             <groupId>com.github.jedis-lock</groupId>
             <artifactId>jedis-lock</artifactId>
             <version>1.0.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>hu.bets</groupId>
+            <artifactId>service-discovery</artifactId>
+            <version>0.0.4</version>
         </dependency>
 
         <!-- TESTING -->
