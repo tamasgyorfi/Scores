@@ -1,8 +1,8 @@
 package utils;
 
+import hu.bets.common.util.json.Json;
 import hu.bets.points.model.MatchResult;
 import hu.bets.points.model.Result;
-import hu.bets.points.utils.JsonUtils;
 import hu.bets.points.web.model.ToplistRequestPayload;
 
 import java.time.LocalDateTime;
@@ -36,7 +36,7 @@ public class TestUtils {
     }
 
     public static final String getToplistPayload(List<String> userIds) {
-        return new JsonUtils().toJson(new ToplistRequestPayload(userIds, "empty-token"));
+        return new Json().toJson(new ToplistRequestPayload(userIds, "empty-token"));
     }
 
 }

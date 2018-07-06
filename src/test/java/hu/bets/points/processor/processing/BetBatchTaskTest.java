@@ -2,6 +2,7 @@ package hu.bets.points.processor.processing;
 
 import com.google.common.collect.Sets;
 import hu.bets.common.util.hash.HashGenerator;
+import hu.bets.common.util.json.Json;
 import hu.bets.points.model.Bet;
 import hu.bets.points.model.BetBatch;
 import hu.bets.points.model.Result;
@@ -12,7 +13,6 @@ import hu.bets.points.model.ProcessingResult;
 import hu.bets.points.processor.betbatch.BetBatchTask;
 import hu.bets.points.processor.betbatch.processing.DefaultBetBatchProcessor;
 import hu.bets.points.processor.betbatch.validation.DefaultBetBatchValidator;
-import hu.bets.points.utils.JsonUtils;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -35,7 +35,7 @@ public class BetBatchTaskTest {
     private AbstractValidatedProcessorTask<?> sut;
 
     @Mock
-    private JsonUtils jsonUtils;
+    private Json jsonUtils;
     @Mock
     private PointsCalculatorService pointsCalculatorService;
     @Mock
@@ -135,7 +135,7 @@ public class BetBatchTaskTest {
         }
 
         @Override
-        protected JsonUtils getMapper() {
+        protected Json getMapper() {
             return jsonUtils;
         }
     }

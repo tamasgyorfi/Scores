@@ -2,17 +2,15 @@ package hu.bets.points.dbaccess;
 
 import com.github.jedis.lock.JedisLock;
 import com.mongodb.BasicDBObject;
-import com.mongodb.DBObject;
 import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.mongodb.client.model.UpdateOptions;
-import com.mongodb.util.JSON;
+import hu.bets.common.util.json.Json;
 import hu.bets.points.model.Bet;
 import hu.bets.points.model.MatchResult;
 import hu.bets.points.model.Result;
 import hu.bets.points.model.ToplistEntry;
-import hu.bets.points.utils.JsonUtils;
 import org.bson.Document;
 import org.bson.conversions.Bson;
 import org.slf4j.Logger;
@@ -35,7 +33,7 @@ public class DefaultScoresServiceDAO implements ScoresServiceDAO {
 
     private static final int UNPROCESSED_MATCHES_COLLECTION = 0;
     private static final int MATCH_RESULTS_COLLECTION = 1;
-    private static final JsonUtils JSON_UTILS = new JsonUtils();
+    private static final Json JSON_UTILS = new Json();
 
     private MongoCollection<Document> matchCollection;
     private MongoCollection<Document> scoreCollection;
@@ -134,8 +132,8 @@ public class DefaultScoresServiceDAO implements ScoresServiceDAO {
 
         FindIterable<Document> documents = toplistCollection.find(Filters.in("userId", userIds));
         documents.forEach((Consumer<Document>) document -> {
-                ToplistEntry entry = JSON_UTILS.fromJson(document.toJson(), ToplistEntry.class);
-                result.put(entry.getUserId(), entry.getPoints());
+            ToplistEntry entry = JSON_UTILS.fromJson(document.toJson(), ToplistEntry.class);
+            result.put(entry.getUserId(), entry.getPoints());
         });
         LOGGER.info("Resulting values for userIds: {} are: {}", userIds, result);
         return result;

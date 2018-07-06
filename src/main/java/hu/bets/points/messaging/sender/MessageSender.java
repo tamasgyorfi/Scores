@@ -1,9 +1,9 @@
 package hu.bets.points.messaging.sender;
 
 import com.rabbitmq.client.Channel;
+import hu.bets.common.util.json.Json;
 import hu.bets.points.messaging.MessagingConstants;
 import hu.bets.points.model.ProcessingResult;
-import hu.bets.points.utils.JsonUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -33,7 +33,7 @@ public class MessageSender {
             try {
                 Future<ProcessingResult> payload = resultQueue.poll(1L, TimeUnit.SECONDS);
                 if (isPayloadPresent(payload)) {
-                    sendMessage(new JsonUtils().toJson(payload.get()));
+                    sendMessage(new Json().toJson(payload.get()));
                 }
             } catch (InterruptedException e) {
                 shouldContinue = false;

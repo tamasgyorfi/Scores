@@ -3,7 +3,7 @@ package hu.bets.points.config;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
 import hu.bets.common.config.CommonMongoConfig;
-import hu.bets.points.utils.EnvironmentVarResolver;
+import hu.bets.common.util.EnvironmentVarResolver;
 import org.bson.Document;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.annotation.Bean;
@@ -59,7 +59,9 @@ public class DatabaseConfig {
     public JedisPool jedisPool() throws Exception {
         JedisPoolConfig poolConfig = new JedisPoolConfig();
         poolConfig.setMaxTotal(124);
-        return new JedisPool(poolConfig, new URI(EnvironmentVarResolver.getEnvVar(REDIS_URL)));
+        return new JedisPool(poolConfig, new URI(EnvironmentVarResolver.getEnvVar(REDIS_URL, () -> {
+            throw new IllegalStateException();
+        })));
     }
 
 }

@@ -8,13 +8,13 @@ import com.mongodb.client.model.Filters;
 import com.rabbitmq.client.Channel;
 import hu.bets.common.util.EnvironmentVarResolver;
 import hu.bets.common.util.hash.MD5HashGenerator;
+import hu.bets.common.util.json.Json;
 import hu.bets.points.config.ApplicationConfig;
 import hu.bets.points.config.MessagingConfig;
 import hu.bets.points.config.WebConfig;
 import hu.bets.points.dbaccess.DefaultScoresServiceDAO;
 import hu.bets.points.messaging.MessagingConstants;
 import hu.bets.points.model.*;
-import hu.bets.points.utils.JsonUtils;
 import hu.bets.points.web.model.ResultResponse;
 import hu.bets.points.web.model.ToplistResponsePayload;
 import hu.bets.steps.Given;
@@ -164,10 +164,10 @@ public class IntegrationTest {
         BetBatch betBatch = new BetBatch(3, bets, new MD5HashGenerator().getHash(bets));
 
         jedis.select(MATCH_COLLECTION_INDEX);
-        jedis.set("match100", new JsonUtils().toJson(result1.getResult()));
-        matchCollection.insertOne(Document.parse(new JsonUtils().toJson(result2)));
+        jedis.set("match100", new Json().toJson(result1.getResult()));
+        matchCollection.insertOne(Document.parse(new Json().toJson(result2)));
 
-        senderChannel.basicPublish(MessagingConstants.EXCHANGE_NAME, MessagingConstants.BETS_TO_SCORES_ROUTE, null, new JsonUtils().toJson(betBatch).getBytes());
+        senderChannel.basicPublish(MessagingConstants.EXCHANGE_NAME, MessagingConstants.BETS_TO_SCORES_ROUTE, null, new Json().toJson(betBatch).getBytes());
         receiverChannel.basicConsume(MessagingConstants.SCORES_TO_BETS_QUEUE, true, testConsumer);
         TimeUnit.SECONDS.sleep(WAIT_TIME_SECONDS);
 

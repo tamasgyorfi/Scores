@@ -1,12 +1,12 @@
 package hu.bets.points.processor.betrequest;
 
+import hu.bets.common.util.json.Json;
 import hu.bets.points.model.MatchResultWithToken;
 import hu.bets.points.processor.AbstractValidatedProcessorTask;
 import hu.bets.points.processor.Type;
 import hu.bets.points.processor.betbatch.validation.InvalidBatchException;
 import hu.bets.points.processor.betrequest.processing.BetRequestProcessor;
 import hu.bets.points.processor.betrequest.validation.BetRequestValidator;
-import hu.bets.points.utils.JsonUtils;
 
 public class BetRequestTask extends AbstractValidatedProcessorTask<MatchResultWithToken> {
 
@@ -24,8 +24,8 @@ public class BetRequestTask extends AbstractValidatedProcessorTask<MatchResultWi
     }
 
     // This is here for testability
-    protected JsonUtils getMapper() {
-        return new JsonUtils();
+    protected Json getMapper() {
+        return new Json();
     }
 
     @Override

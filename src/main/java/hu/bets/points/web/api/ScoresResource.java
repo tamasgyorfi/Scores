@@ -1,12 +1,12 @@
 package hu.bets.points.web.api;
 
+import hu.bets.common.util.json.Json;
 import hu.bets.points.model.MatchResultWithToken;
 import hu.bets.points.model.ToplistEntry;
 import hu.bets.points.processor.CommonExecutor;
 import hu.bets.points.processor.Type;
 import hu.bets.points.services.ToplistService;
 import hu.bets.points.services.conversion.ModelConverterService;
-import hu.bets.points.utils.JsonUtils;
 import hu.bets.points.web.model.ResultResponse;
 import hu.bets.points.web.model.ToplistRequestPayload;
 import hu.bets.points.web.model.ToplistResponsePayload;
@@ -66,7 +66,7 @@ public class ScoresResource {
 
         LOGGER.info("getScores method invoked. {}" , resultRequest);
         try {
-            List<ToplistEntry> toplistScore = toplistService.getToplistScore(new JsonUtils().fromJson(resultRequest, ToplistRequestPayload.class).getUserIds());
+            List<ToplistEntry> toplistScore = toplistService.getToplistScore(new Json().fromJson(resultRequest, ToplistRequestPayload.class).getUserIds());
             LOGGER.info("Returning toplist scores: {}", toplistScore);
             return Response.ok().entity(new ToplistResponsePayload(toplistScore, "")).build();
         } catch (IllegalPayloadException e) {
