@@ -3,6 +3,7 @@ package integration;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 import com.google.gson.Gson;
+import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.model.Filters;
 import com.rabbitmq.client.Channel;
@@ -38,6 +39,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
 
 import static junit.framework.TestCase.assertTrue;
 import static org.junit.Assert.assertEquals;
@@ -73,9 +75,9 @@ public class IntegrationTest {
     private static final int MATCH_COLLECTION_INDEX = 1;
     private static final long WAIT_TIME_SECONDS = 3;
 
-    private Bet bet1 = new Bet("user1", "match100", new Result("match100", "compId100", "team1", "team2", 3, 1), "bet100");
-    private Bet bet2 = new Bet("user2", "match200", new Result("match200", "compId100", "team3", "team9", 3, 3), "bet200");
-    private Bet bet3 = new Bet("user3", "match300", new Result("match300", "compId100", "team3", "team9", 3, 3), "bet300");
+    private Bet bet1 = new Bet("user1", "match100", new Result("match100", "compId100", "team1", "team2", 3, 1, ""), "bet100");
+    private Bet bet2 = new Bet("user2", "match200", new Result("match200", "compId100", "team3", "team9", 3, 3, ""), "bet200");
+    private Bet bet3 = new Bet("user3", "match300", new Result("match300", "compId100", "team3", "team9", 3, 3, ""), "bet300");
 
     private List<Bet> bets = Lists.newArrayList(bet1, bet2, bet3);
 
@@ -108,6 +110,12 @@ public class IntegrationTest {
         assertEquals(Response.Status.ACCEPTED.getStatusCode(), httpResponse.getStatusLine().getStatusCode());
         assertEquals("", resultResponse.getError());
         assertEquals("Match results saved.", resultResponse.getResponsePayload());
+
+        FindIterable findIterable = FakeDatabaseConfig.FongoResultsCollectionHolder.getMatchResultCollection().find();
+        findIterable.forEach((Consumer<Document>) consumer -> {
+            String a = consumer.toJson();
+            consumer.toJson();
+        });
     }
 
     @Test
@@ -158,8 +166,8 @@ public class IntegrationTest {
 
         MongoCollection matchCollection = FakeDatabaseConfig.FongoResultsCollectionHolder.getMatchResultCollection();
 
-        MatchResult result1 = new MatchResult("match100", new Result("match100", "compId100", "team1", "team2", 1, 1));
-        MatchResult result2 = new MatchResult("match200", new Result("match200", "compId100", "team3", "team9", 3, 3));
+        MatchResult result1 = new MatchResult("match100", new Result("match100", "compId100", "team1", "team2", 1, 1, ""));
+        MatchResult result2 = new MatchResult("match200", new Result("match200", "compId100", "team3", "team9", 3, 3, ""));
 
         BetBatch betBatch = new BetBatch(3, bets, new MD5HashGenerator().getHash(bets));
 
@@ -219,7 +227,7 @@ public class IntegrationTest {
     public void shouldSaveABetIdOnlyOnce() {
         DefaultScoresServiceDAO matchDAO = ApplicationContextHolder.getBean(DefaultScoresServiceDAO.class);
 
-        Bet bet = new Bet("user1", "match1", new Result("match1", "comp1", "h", "a", 1, 1), "bet1");
+        Bet bet = new Bet("user1", "match1", new Result("match1", "comp1", "h", "a", 1, 1, ""), "bet1");
         matchDAO.savePoints(bet, 10);
         matchDAO.savePoints(bet, 8);
 

@@ -7,6 +7,6 @@ public final class DatabaseFields {
     }
 
     public static final String MATCH_ID = "result.matchId";
-    public static final String MATCH_DATE = "matchDate";
+    public static final String MATCH_DATE = "result.matchDate";
 
 }

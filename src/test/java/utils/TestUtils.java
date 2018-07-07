@@ -14,7 +14,7 @@ public class TestUtils {
 
 
     public static MatchResult getRecord(LocalDateTime matchDate, String matchId) {
-        return new MatchResult(new Result(matchId, "1", "1", "1", 1, 1), matchDate);
+        return new MatchResult(new Result(matchId, "1", "1", "1", 1, 1, matchDate.toString()), matchDate);
     }
 
     public static final String getMatchEndPayload(String matchId) {
@@ -27,7 +27,8 @@ public class TestUtils {
                 "            \"matchId\":\"" + matchId + "\",\n" +
                 "            \"competitionId\":\"Super Lig\",\n" +
                 "            \"homeTeamGoals\":0,\n" +
-                "            \"awayTeamGoals\":1\n" +
+                "            \"awayTeamGoals\":1,\n" +
+                "            \"matchDate\":\"2019-09-09\"\n" +
                 "         }\n" +
                 "      }\n" +
                 "   ],\n" +

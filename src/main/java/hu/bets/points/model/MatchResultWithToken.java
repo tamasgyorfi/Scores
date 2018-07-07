@@ -26,4 +26,12 @@ public class MatchResultWithToken {
     public String getToken() {
         return token;
     }
+
+    @Override
+    public String toString() {
+        return "MatchResultWithToken{" +
+                "results=" + results +
+                ", token='" + token + '\'' +
+                '}';
+    }
 }

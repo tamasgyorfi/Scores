@@ -108,7 +108,7 @@ public class DefaultScoresServiceDAOTest {
 
     @Test
     public void shouldCorrectlySaveThePointsEntryIntoTheDatabaseUserNotInToplistCollection() {
-        sut.savePoints(new Bet("user1", "match1", getResult("match1"), "betId"), 10);
+        sut.savePoints(new Bet("user1", "match1", getResult("match1", sut.getCurrentTime().toString()), "betId"), 10);
 
         FindIterable<Document> documents = MongoHolder.getScoresCollection().find(Filters.eq("betId", "betId"));
         Document document = documents.first();
@@ -137,7 +137,7 @@ public class DefaultScoresServiceDAOTest {
     @Test
     public void shouldCorrectlySaveThePointsEntryIntoTheDatabaseUserInToplistCollection() {
         MongoHolder.getToplistCollection().insertOne(new Document("userId", "user1").append("points", 13));
-        sut.savePoints(new Bet("user1", "match1", getResult("match1"), "betId"), 10);
+        sut.savePoints(new Bet("user1", "match1", getResult("match1", sut.getCurrentTime().toString()), "betId"), 10);
 
         FindIterable<Document> documents = MongoHolder.getScoresCollection().find(Filters.eq("betId", "betId"));
         Document document = documents.first();
@@ -165,8 +165,8 @@ public class DefaultScoresServiceDAOTest {
 
     @Test
     public void shouldReturnFailedMatchIdsAfterMatchingCacheWithDb() {
-        sut.saveMatch(new MatchResult(getResult("id2"), sut.getCurrentTime()));
-        sut.saveMatch(new MatchResult(getResult("id3"), sut.getCurrentTime()));
+        sut.saveMatch(new MatchResult(getResult("id2", sut.getCurrentTime().toString()), sut.getCurrentTime()));
+        sut.saveMatch(new MatchResult(getResult("id3", sut.getCurrentTime().toString()), sut.getCurrentTime()));
 
         sut.saveNonProcessedMatches(Sets.newHashSet("id1", "id2", "id3"));
 
@@ -184,10 +184,10 @@ public class DefaultScoresServiceDAOTest {
     public void shouldGetMatchResultFromTheCacheWhenPresent() throws InterruptedException {
         MongoCollection matchCollection = Mockito.mock(MongoCollection.class);
         sut = new FakeDefaultScoresServiceDAO(matchCollection, MongoHolder.getScoresCollection(), MongoHolder.getToplistCollection(), jedisPool);
-        sut.saveMatch(new MatchResult(getResult("id2"), sut.getCurrentTime()));
+        sut.saveMatch(new MatchResult(getResult("id2",sut.getCurrentTime().toString()), sut.getCurrentTime()));
 
         Optional<Result> result = sut.getResult("id2");
-        assertEquals(Optional.ofNullable(getResult("id2")), result);
+        assertEquals(Optional.ofNullable(getResult("id2", sut.getCurrentTime().toString())), result);
 
         verify(matchCollection).insertOne(any(Document.class));
         verify(matchCollection, never()).find(Bson.class);
@@ -197,14 +197,14 @@ public class DefaultScoresServiceDAOTest {
     public void shouldGetMatchResultFromTheDbWhenCacheMiss() {
         Jedis cacheCollection = Mockito.mock(Jedis.class);
         sut = new FakeDefaultScoresServiceDAO(MongoHolder.getMatchCollection(), MongoHolder.getScoresCollection(), MongoHolder.getToplistCollection(), jedisPool);
-        sut.saveMatch(new MatchResult(getResult("id2"), sut.getCurrentTime()));
+        sut.saveMatch(new MatchResult(getResult("id2", sut.getCurrentTime().toString()), sut.getCurrentTime()));
 
         when(cacheCollection.get("id2")).thenReturn(null);
-        assertEquals(Optional.of(getResult("id2")), sut.getResult("id2"));
+        assertEquals(Optional.of(getResult("id2", sut.getCurrentTime().toString())), sut.getResult("id2"));
     }
 
-    private Result getResult(String matchId) {
-        return new Result(matchId, "comp1", "ht", "at", 1, 2);
+    private Result getResult(String matchId, String date) {
+        return new Result(matchId, "comp1", "ht", "at", 1, 2, date);
     }
 
     class FakeDefaultScoresServiceDAO extends DefaultScoresServiceDAO {

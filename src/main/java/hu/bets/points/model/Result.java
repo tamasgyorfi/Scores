@@ -2,6 +2,8 @@ package hu.bets.points.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
+import java.util.Objects;
+
 @JsonIgnoreProperties(ignoreUnknown = true)
 public class Result {
 
@@ -13,6 +15,8 @@ public class Result {
     private final int homeTeamGoals;
     private final int awayTeamGoals;
 
+    private final String matchDate;
+
     // Needed for JSON deserialization.
     private Result() {
         matchId = null;
@@ -21,15 +25,17 @@ public class Result {
         awayTeamName = null;
         homeTeamName = null;
         competitionId = null;
+        matchDate = null;
     }
 
-    public Result(String matchId, String competitionId, String homeTeamName, String awayTeamName, int homeTeamGoals, int awayTeamGoals) {
+    public Result(String matchId, String competitionId, String homeTeamName, String awayTeamName, int homeTeamGoals, int awayTeamGoals, String matchDate) {
         this.matchId = matchId;
         this.competitionId = competitionId;
         this.homeTeamName = homeTeamName;
         this.awayTeamName = awayTeamName;
         this.homeTeamGoals = homeTeamGoals;
         this.awayTeamGoals = awayTeamGoals;
+        this.matchDate = matchDate;
     }
 
     public String getHomeTeamName() {
@@ -56,31 +62,8 @@ public class Result {
         return matchId;
     }
 
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-
-        Result result = (Result) o;
-
-        if (homeTeamGoals != result.homeTeamGoals) return false;
-        if (awayTeamGoals != result.awayTeamGoals) return false;
-        if (matchId != null ? !matchId.equals(result.matchId) : result.matchId != null) return false;
-        if (competitionId != null ? !competitionId.equals(result.competitionId) : result.competitionId != null)
-            return false;
-        if (homeTeamName != null ? !homeTeamName.equals(result.homeTeamName) : result.homeTeamName != null) return false;
-        return awayTeamName != null ? awayTeamName.equals(result.awayTeamName) : result.awayTeamName == null;
-    }
-
-    @Override
-    public int hashCode() {
-        int result = matchId != null ? matchId.hashCode() : 0;
-        result = 31 * result + (competitionId != null ? competitionId.hashCode() : 0);
-        result = 31 * result + (homeTeamName != null ? homeTeamName.hashCode() : 0);
-        result = 31 * result + (awayTeamName != null ? awayTeamName.hashCode() : 0);
-        result = 31 * result + homeTeamGoals;
-        result = 31 * result + awayTeamGoals;
-        return result;
+    public String getMatchDate() {
+        return matchDate;
     }
 
     @Override
@@ -92,6 +75,27 @@ public class Result {
                 ", awayTeamName='" + awayTeamName + '\'' +
                 ", homeTeamGoals=" + homeTeamGoals +
                 ", awayTeamGoals=" + awayTeamGoals +
+                ", matchDate='" + matchDate + '\'' +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Result result = (Result) o;
+        return homeTeamGoals == result.homeTeamGoals &&
+                awayTeamGoals == result.awayTeamGoals &&
+                Objects.equals(matchId, result.matchId) &&
+                Objects.equals(competitionId, result.competitionId) &&
+                Objects.equals(homeTeamName, result.homeTeamName) &&
+                Objects.equals(awayTeamName, result.awayTeamName) &&
+                Objects.equals(matchDate, result.matchDate);
+    }
+
+    @Override
+    public int hashCode() {
+
+        return Objects.hash(matchId, competitionId, homeTeamName, awayTeamName, homeTeamGoals, awayTeamGoals, matchDate);
     }
 }
